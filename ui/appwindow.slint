@@ -1,0 +1,57 @@
+import {Button}from "std-widgets.slint";
+export component AppWindow inherits Window {
+    min-height: 371px;
+    min-width: 300px;
+
+    
+    textArea := Rectangle {
+        height: root.height * 40%;
+        width : parent.width;
+        y : 0;
+        Text {
+            text : root.height/1px + " x " +  root.width/1px;
+            font-size: 32px;
+            height : parent.height;
+            wrap: char-wrap;
+            width: parent.width;
+        }
+    }
+        Grid := GridLayout {
+            y : root.height * 40%;
+            height: parent.height - textArea.height - 5px;
+            width: parent.width - 10px;
+            spacing : 5px;
+            Row {
+                Button {text : "AC"; primary: true; colorize-icon: true;}
+                Button {text : "(";}
+                Button {text : ")";}
+                Button {text : "÷"; colorize-icon: true;}
+            }
+            Row {
+                Button {text : "7";}
+                Button {text : "8";}
+                Button {text : "9";}
+                Button {text : "×";}
+            }
+            Row {
+                Button {text : "4";}
+                Button {text : "5";}
+                Button {text : "6";}
+                Button {text : "-";}
+            }
+            Row {
+                Button {text : "1";}
+                Button {text : "2";}
+                Button {text : "3";}
+                Button {text : "+";}
+            }
+            Row {
+                Button {text : "0";}
+                Button {text : ".";}
+                Button {text : "⌫"; primary : true;}
+                Button {text : "ANS"; primary : true;}
+            }
+
+        }
+    
+}
