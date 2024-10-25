@@ -1,57 +1,164 @@
-import {Button}from "std-widgets.slint";
-export component AppWindow inherits Window {
-    min-height: 371px;
-    min-width: 300px;
-
-    
-    textArea := Rectangle {
-        height: root.height * 40%;
-        width : parent.width;
-        y : 0;
+import { Button } from "std-widgets.slint";
+component Button {
+    in-out property <string> text;
+    in property <color> bg-color;
+    in property <bool> dark: false;
+    Rectangle {
         Text {
-            text : root.height/1px + " x " +  root.width/1px;
-            font-size: 32px;
-            height : parent.height;
-            wrap: char-wrap;
-            width: parent.width;
+            text: text;
+            font-size: 20px;
+            color: bg-color.darker(dark ? -99% : 99%);
+        }
+
+        drop-shadow-color: self.background.darker(dark ? -10% : 10%);
+        background: ta.pressed ? bg-color.darker(dark ? -15% : 15%) : ta.has-hover ? bg-color.darker(dark ? -40% : 40%) : bg-color.darker(dark ? -20% : 0%);
+        animate background, border_radius { duration: 150ms; }
+        border-radius: ta.pressed ? 8px : 20px;
+        border-width: ta.pressed ? 3px : 1px;
+        animate border-width {
+            duration: 2000ms;
+            easing: ease-out-elastic;
+        }
+        border-color: ta.pressed ? self.background.darker(dark ? -40% : 40%) : self.background.darker(dark ? -22% : 22%);
+        ta := TouchArea { }
+    }
+}
+
+// component ActionButton {
+//     in-out property <string> text;
+//     in property <color> bg-color;
+//     in property <bool> dark: true;
+//     Rectangle {
+//         Text {
+//             text: text;
+//             font-size: 20px;
+//             color: bg-color.darker(dark ? -99% : 99%);
+//         }
+
+//         drop-shadow-color: self.background.darker(dark ? -10% : 10%);
+//         background: ta.pressed ? bg-color.darker(dark ? -10% : -10%) : ta.has-hover ? bg-color.darker(dark ? -40% : 40%) : bg-color.darker(dark ? -20% : 20%);
+//         animate background, border_radius { duration: 150ms; }
+//         border-radius: ta.pressed ? 8px : 20px;
+//         border-width: ta.pressed ? 3px : 1px;
+//         animate border-width {
+//             duration: 2000ms;
+//             easing: ease-out-elastic;
+//         }
+//         border-color: ta.pressed ? self.background.darker(dark ? -40% : 40%) : self.background.darker(dark ? -22% : 22%);
+//         ta := TouchArea { }
+//     }
+// }
+
+export component AppWindow inherits Window {
+    preferred-height: 300px;
+    preferred-width: 200px;
+    property <bool> dark: false;
+    background: dark ? #282828 : #fbf1c7;
+    VerticalLayout {
+        textArea := Rectangle {
+            height: root.height * 40%;
+            border-color: red;
+            width: root.width;
+            Text {
+                text: root.height / 1px + " x " + root.width / 1px;
+                font-size: 32px;
+                height: parent.height;
+                wrap: char-wrap;
+                width: parent.width;
+            }
+        }
+
+        Grid := GridLayout {
+            padding: 6px;
+            height: root.height * 60%;
+            spacing: 5px;
+            Row {
+                Button {
+                    bg-color: dark ? #ff403d : #a80015;
+                    text: "A";
+                }
+
+                Button {
+                    text: "(";
+                    bg-color: root.background;
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: ")";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "÷";
+                }
+            }
+
+            Row {
+                Button {
+                    bg-color: root.background;
+                    text: "7";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "8";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "9";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "×";
+                }
+            }
+
+            Row {
+                Button {
+                    bg-color: root.background;
+                    text: "4";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "5";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "6";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "-";
+                }
+            }
+
+            Row {
+                Button {
+                    bg-color: root.background;
+                    text: "1";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "2";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "3";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "+";
+                }
+            }
         }
     }
-        Grid := GridLayout {
-            y : root.height * 40%;
-            height: parent.height - textArea.height - 5px;
-            width: parent.width - 10px;
-            spacing : 5px;
-            Row {
-                Button {text : "AC"; primary: true; colorize-icon: true;}
-                Button {text : "(";}
-                Button {text : ")";}
-                Button {text : "÷"; colorize-icon: true;}
-            }
-            Row {
-                Button {text : "7";}
-                Button {text : "8";}
-                Button {text : "9";}
-                Button {text : "×";}
-            }
-            Row {
-                Button {text : "4";}
-                Button {text : "5";}
-                Button {text : "6";}
-                Button {text : "-";}
-            }
-            Row {
-                Button {text : "1";}
-                Button {text : "2";}
-                Button {text : "3";}
-                Button {text : "+";}
-            }
-            Row {
-                Button {text : "0";}
-                Button {text : ".";}
-                Button {text : "⌫"; primary : true;}
-                Button {text : "ANS"; primary : true;}
-            }
-
-        }
-    
 }
