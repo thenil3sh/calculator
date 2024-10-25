@@ -1,25 +1,31 @@
 import { Button } from "std-widgets.slint";
+global theme {
+    in property <bool> dark : false;
+    in property <string> font-addr;
+}
 component Button {
     in-out property <string> text;
     in property <color> bg-color;
-    in property <bool> dark: false;
+    in property <length> font-size : 20px;
+    in property <color> font-color : theme.dark ? #fbf1c7 : #282828;
     Rectangle {
         Text {
             text: text;
-            font-size: 20px;
-            color: bg-color.darker(dark ? -99% : 99%);
+            font-size: font-size;
+            color: font-color;
+            font-family : "ui/JetBrainsMono-Regular.ttf";
         }
 
-        drop-shadow-color: self.background.darker(dark ? -10% : 10%);
-        background: ta.pressed ? bg-color.darker(dark ? -15% : 15%) : ta.has-hover ? bg-color.darker(dark ? -40% : 40%) : bg-color.darker(dark ? -20% : 0%);
-        animate background, border_radius { duration: 150ms; }
+        drop-shadow-color: self.background.darker(theme.dark? -10% : 10%);
+        background: ta.pressed ? bg-color.darker(theme.dark? -15% : 15%) : ta.has-hover ? bg-color.darker(theme.dark? -40% : 40%) : bg-color.darker(theme.dark? -20% : 0%);
         border-radius: ta.pressed ? 8px : 20px;
         border-width: ta.pressed ? 3px : 1px;
+        border-color: ta.pressed ? self.background.darker(theme.dark? -40% : 40%) : self.background.darker(theme.dark? -22% : 22%);
+        animate background, border_radius { duration: 150ms; }
         animate border-width {
             duration: 2000ms;
             easing: ease-out-elastic;
         }
-        border-color: ta.pressed ? self.background.darker(dark ? -40% : 40%) : self.background.darker(dark ? -22% : 22%);
         ta := TouchArea { }
     }
 }
@@ -32,11 +38,11 @@ component Button {
 //         Text {
 //             text: text;
 //             font-size: 20px;
-//             color: bg-color.darker(dark ? -99% : 99%);
+//             color: bg-color.darker(theme.dark? -99% : 99%);
 //         }
 
-//         drop-shadow-color: self.background.darker(dark ? -10% : 10%);
-//         background: ta.pressed ? bg-color.darker(dark ? -10% : -10%) : ta.has-hover ? bg-color.darker(dark ? -40% : 40%) : bg-color.darker(dark ? -20% : 20%);
+//         drop-shadow-color: self.background.darker(theme.dark? -10% : 10%);
+//         background: ta.pressed ? bg-color.darker(theme.dark? -10% : -10%) : ta.has-hover ? bg-color.darker(theme.dark? -40% : 40%) : bg-color.darker(theme.dark? -20% : 20%);
 //         animate background, border_radius { duration: 150ms; }
 //         border-radius: ta.pressed ? 8px : 20px;
 //         border-width: ta.pressed ? 3px : 1px;
@@ -44,16 +50,13 @@ component Button {
 //             duration: 2000ms;
 //             easing: ease-out-elastic;
 //         }
-//         border-color: ta.pressed ? self.background.darker(dark ? -40% : 40%) : self.background.darker(dark ? -22% : 22%);
+//         border-color: ta.pressed ? self.background.darker(theme.dark? -40% : 40%) : self.background.darker(theme.dark? -22% : 22%);
 //         ta := TouchArea { }
 //     }
 // }
 
 export component AppWindow inherits Window {
-    preferred-height: 300px;
-    preferred-width: 200px;
-    property <bool> dark: false;
-    background: dark ? #282828 : #fbf1c7;
+    background: theme.dark? #282828 : #fbf1c7;
     VerticalLayout {
         textArea := Rectangle {
             height: root.height * 40%;
@@ -74,8 +77,10 @@ export component AppWindow inherits Window {
             spacing: 5px;
             Row {
                 Button {
-                    bg-color: dark ? #ff403d : #a80015;
-                    text: "A";
+                    bg-color: theme.dark? #ff403d : #cc241d;
+                    text: "C";
+                    font-color: root.background;
+                    colspan: 1;
                 }
 
                 Button {
@@ -159,6 +164,26 @@ export component AppWindow inherits Window {
                     text: "+";
                 }
             }
+            Row {
+                Button {
+                    bg-color: root.background;
+                    text: ".";
+                }
+
+                Button {
+                    bg-color: root.background;
+                    text: "<";
+                    font-size: 15px;
+                }
+
+                Button {
+                    bg-color: theme.dark ? #af3a03 : #d65d0e;
+                    text: "=";
+                    font-color: root.background; 
+                    colspan: 2;
+                }
+            }
+            
         }
     }
 }

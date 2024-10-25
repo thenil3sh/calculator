@@ -43,7 +43,7 @@ use Paren::{Left, Right};
 fn main() {
     let app = AppWindow::new().unwrap();
     app.run().unwrap();
-    let expression_string = "56 55* 8 ";
+    let expression_string = "34 + (45/34)/2 ";
     let mut expression: Vec<Expression<f64>> = Vec::new();
 
     let mut num = String::new();
