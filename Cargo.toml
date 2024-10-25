@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dark-light = "1.1.1"
 slint = "1.8.0"
 
 [build-dependencies]
