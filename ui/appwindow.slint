@@ -3,11 +3,13 @@ import { Button } from "std-widgets.slint";
 export global theme {
     in property <bool> dark: true;
     in property <string> font : "JetBrains Mono";
+    in property <color> axn-button : theme.dark ? #3c3836 : #ebdbb2;
 }
 
 export global elements {
     callback touch(string);
     in property <string> text;
+    in property <string> paren;
 }
 
 
@@ -35,7 +37,7 @@ component Button {
         border-color: ta.pressed ? self.background.darker(theme.dark ? -40% : 40%) : self.background.darker(theme.dark ? -22% : 22%);
         animate background, border_radius { duration: 150ms; }
         animate border-width{
-            delay : 150ms;
+            delay : 500ms;
             duration: 2000ms;
             easing: ease-out-elastic;
         }
@@ -47,30 +49,6 @@ component Button {
     }
 }
 
-// component ActionButton {
-//     in-out property <string> text;
-//     in property <color> bg-color;
-//     in property <bool> dark: true;
-//     Rectangle {
-//         Text {
-//             text: text;
-//             font-size: 20px;
-//             color: bg-color.darker(theme.dark? -99% : 99%);
-//         }
-
-//         drop-shadow-color: self.background.darker(theme.dark? -10% : 10%);
-//         background: ta.pressed ? bg-color.darker(theme.dark? -10% : -10%) : ta.has-hover ? bg-color.darker(theme.dark? -40% : 40%) : bg-color.darker(theme.dark? -20% : 20%);
-//         animate background, border_radius { duration: 150ms; }
-//         border-radius: ta.pressed ? 8px : 20px;
-//         border-width: ta.pressed ? 3px : 1px;
-//         animate border-width {
-//             duration: 2000ms;
-//             easing: ease-out-elastic;
-//         }
-//         border-color: ta.pressed ? self.background.darker(theme.dark? -40% : 40%) : self.background.darker(theme.dark? -22% : 22%);
-//         ta := TouchArea { }
-//     }
-// }
 
 export component AppWindow inherits Window {
     min-height : 400px;
@@ -83,6 +61,7 @@ export component AppWindow inherits Window {
             height: root.height * 40%;
             border-color: red;
             width: root.width;
+            padding: -1px;
             Text {
                 text: elements.text;
                 font-size: 40px;
@@ -94,6 +73,18 @@ export component AppWindow inherits Window {
                 wrap: char-wrap;
                 width: parent.width;
             }
+            Text {
+                text: elements.paren;
+                font-size: 40px;
+                vertical-alignment: bottom;
+                horizontal-alignment: right;
+                height: parent.height;
+                color: theme.dark? #fe8019 : #af3a03 ;
+                font-family: theme.font;
+                wrap: char-wrap;
+                width: parent.width;
+            }
+
         }
 
         Grid := GridLayout {
@@ -108,21 +99,17 @@ export component AppWindow inherits Window {
                     colspan: 1;
                 }
 
+                
                 Button {
-                    text: "(";
-                    bg-color: root.background;
+                    text: "()";
+                    bg-color : theme.axn-button;
+                    colspan : 2;
                 }
-
                 Button {
-                    bg-color: root.background;
-                    text: ")";
-                }
-
-                Button {
-                    bg-color: root.background;
+                    bg-color: theme.axn-button;
                     text: "÷";
                     font-size:25px;
-                    
+                    col : 3;
                 }
             }
 
@@ -143,7 +130,7 @@ export component AppWindow inherits Window {
                 }
 
                 Button {
-                    bg-color: root.background;
+                    bg-color: theme.axn-button;
                     text: "×";
                     font-size:25px;
                 }
@@ -166,7 +153,7 @@ export component AppWindow inherits Window {
                 }
 
                 Button {
-                    bg-color: root.background;
+                    bg-color: theme.axn-button;
                     text: "-";
                     font-size:25px;
                     
@@ -190,7 +177,7 @@ export component AppWindow inherits Window {
                 }
 
                 Button {
-                    bg-color: root.background;
+                    bg-color: theme.axn-button;
                     text: "+";
                     font-size:25px;
                 }
@@ -202,18 +189,22 @@ export component AppWindow inherits Window {
                     text: ".";
                     font-size:25px;
                 }
+                Button {
+                    text : 0;
+                    bg-color : root.background;
+                }
 
                 Button {
-                    bg-color: root.background;
+                    bg-color: theme.axn-button;
                     text: "<";
                     font-size: 25px;
                 }
+
 
                 Button {
                     bg-color: theme.dark ? #af3a03 : #d65d0e;
                     text: "=";
                     font-color: root.background;
-                    colspan: 2;
                     font-size:25px;
                 }
             }
