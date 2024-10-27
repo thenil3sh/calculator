@@ -8,7 +8,7 @@ use dark_light::Mode;
 
 fn remove_first_paren(s: &mut String) -> String {
     let mut rev: String = s.chars().rev().collect();    
-    println!("{rev}");
+    println!("{rev:?}");
     if let Some(pos) = rev.find('(') {
         rev.remove(pos);
         rev.push(' ');
@@ -97,7 +97,7 @@ fn main() {
             *paren_count = 0;
             paren_str.clear();
         } else if char.is_parenthesis() {
-            if last_char.is_numeric() {
+            if last_char.is_numeric() || last_char == ')' {
                 if *paren_count == 0 {
                     base_expression.push('×');
                     base_expression.push('(');
@@ -106,23 +106,9 @@ fn main() {
                     *paren_count += 1;
                 } else {
                     base_expression.push(')');
-                    paren_str.push(' ');
-                    paren_str.push(' ');
                     *paren_str = remove_first_paren(&mut paren_str);
-                    *paren_count -= 1;
-                }
-            } else if last_char == ')' {
-                if *paren_count == 0 {
-                    base_expression.push('×');
-                    base_expression.push('(');
-                    paren_str.push(' ');
-                    paren_str.push('(');
-                    *paren_count += 1;
-                } else {
-                    base_expression.push(')');
                     paren_str.push(' ');
                     paren_str.push(' ');
-                    *paren_str = remove_first_paren(&mut paren_str);
                     *paren_count -= 1;
                 }
             } else if base_expression.is_empty() {

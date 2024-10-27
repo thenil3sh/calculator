@@ -2,17 +2,15 @@ import "./JetBrainsMono-Regular.ttf";
 import { Button } from "std-widgets.slint";
 export global theme {
     in property <bool> dark: true;
-    in property <string> font : "JetBrains Mono";
-    in property <color> axn-button : theme.dark ? #3c3836 : #ebdbb2;
+    in property <string> font: "JetBrains Mono";
+    in property <color> axn-button: theme.dark ? #3c3836 : #ebdbb2;
 }
 
 export global elements {
     callback touch(string);
-    in property <string> text;
+    in property <string> text: " ";
     in property <string> paren;
 }
-
-
 
 component Button {
     in-out property <string> text;
@@ -21,13 +19,12 @@ component Button {
     in property <color> font-color: theme.dark ? #fbf1c7 : #282828;
     Rectangle {
         min-width: 20px;
-        min-height : 15px;
+        min-height: 15px;
         num := Text {
             text: text;
             font-size: font-size;
             color: font-color;
             font-family: theme.font;
-            
         }
 
         drop-shadow-color: self.background.darker(theme.dark ? -10% : 10%);
@@ -36,12 +33,12 @@ component Button {
         border-width: ta.pressed ? 3px : 1px;
         border-color: ta.pressed ? self.background.darker(theme.dark ? -40% : 40%) : self.background.darker(theme.dark ? -22% : 22%);
         animate background, border_radius { duration: 150ms; }
-        animate border-width{
-            delay : 500ms;
+        animate border-width {
+            delay: 500ms;
             duration: 2000ms;
             easing: ease-out-elastic;
         }
-        ta := TouchArea { 
+        ta := TouchArea {
             clicked => {
                 elements.touch(num.text);
             }
@@ -49,10 +46,15 @@ component Button {
     }
 }
 
-
 export component AppWindow inherits Window {
-    min-height : 400px;
-    min-width : 300px;
+    property <length> delta;
+    in-out property <length> scroll_offset_x: root.width - text.width;
+    property <length> new_scroll_offset;
+    property <duration> delay: 100ms;
+    property <duration> duration;
+    property <bool> left_right: false;
+    min-height: 400px;
+    min-width: 300px;
     preferred-height: 500px;
     preferred-width: 500px;
     background: theme.dark ? #282828 : #fbf1c7;
@@ -62,29 +64,93 @@ export component AppWindow inherits Window {
             border-color: red;
             width: root.width;
             padding: -1px;
-            Text {
+            text := Text {
+                letter-spacing: -0.01px;
+                y: parent.height - self.height;
+                x: scroll_offset_x;
+                height: 55px;
                 text: elements.text;
                 font-size: 40px;
-                vertical-alignment: bottom;
-                horizontal-alignment: right;
-                height: parent.height;
-                color: theme.dark? #ebdbb2 : #3c3836 ;
+                color: theme.dark ? #ebdbb2 : #3c3836;
                 font-family: theme.font;
                 wrap: char-wrap;
-                width: parent.width;
-            }
-            Text {
-                text: elements.paren;
-                font-size: 40px;
-                vertical-alignment: bottom;
-                horizontal-alignment: right;
-                height: parent.height;
-                color: theme.dark? #fe8019 : #af3a03 ;
-                font-family: theme.font;
-                wrap: char-wrap;
-                width: parent.width;
+
+                animate x {
+                    duration: 100ms;
+                    delay: delay;
+                    easing: ease-in-out-quad;
+                }
             }
 
+            Text {
+                letter-spacing: -0.01px;
+                y: parent.height - self.height;
+                x: scroll_offset_x;
+                height: 55px;
+                text: elements.paren;
+                font-size: 40px;
+                color: #fe8019;
+                font-family: theme.font;
+                wrap: char-wrap;
+
+                animate x {
+                    duration: 100ms;
+                    delay: delay;
+                    easing: ease-in-out-quad;
+                }
+            }
+            left := Rectangle {
+                height : 55px;
+                x : text.width > root.width && scroll_offset_x <= -1px ? 0 : -30px;
+                y : parent.height - self.height;
+                width : 30px;
+                background: @linear-gradient(90deg, rgba(40,40,40,255) 10%, rgba(40,40,40,0) 100%);
+    
+                animate x {
+                    delay : 100ms;
+                     duration : 200ms;
+    
+                }
+                
+            }
+    
+            right := Rectangle {
+                height : 55px;
+                width : 43px;
+                x : scroll_offset_x > root.width - text.width ? root.width - self.width + 3px: root.width;
+                y : parent.height - self.height;
+                background: @linear-gradient(90deg, rgba(40,40,40,0) 00%, rgba(40,40,40,1) 100%);
+                animate x {
+                    delay : 100ms;
+                    duration : 200ms;
+                }
+            }
+
+            TouchArea {
+                // Handle scroll event
+                scroll-event(event) => {
+                    new_scroll_offset = scroll_offset_x + event.delta-y / 2;
+                    delay = 0ms;
+                    duration = 200ms;
+                    
+                    // Clamp scroll_offset_x to ensure it stays within bounds
+                    if root.width > text.width {
+                        // If the text fits within the window, keep it aligned to the right
+                        reject
+                    } else {
+                        if new_scroll_offset > 0 {
+                            scroll_offset_x = 0;
+                        } else if new_scroll_offset < root.width - text.width {
+                            scroll_offset_x = root.width - text.width;
+                        } else {
+                            scroll_offset_x = new_scroll_offset;
+                        }
+                    }
+                    delay = 100ms;
+                    duration = 100ms;
+                    accept
+                }
+            }
         }
 
         Grid := GridLayout {
@@ -99,17 +165,17 @@ export component AppWindow inherits Window {
                     colspan: 1;
                 }
 
-                
                 Button {
                     text: "()";
-                    bg-color : theme.axn-button;
-                    colspan : 2;
+                    bg-color: theme.axn-button;
+                    colspan: 2;
                 }
+
                 Button {
                     bg-color: theme.axn-button;
                     text: "÷";
-                    font-size:25px;
-                    col : 3;
+                    font-size: 25px;
+                    col: 3;
                 }
             }
 
@@ -132,7 +198,7 @@ export component AppWindow inherits Window {
                 Button {
                     bg-color: theme.axn-button;
                     text: "×";
-                    font-size:25px;
+                    font-size: 25px;
                 }
             }
 
@@ -155,8 +221,7 @@ export component AppWindow inherits Window {
                 Button {
                     bg-color: theme.axn-button;
                     text: "-";
-                    font-size:25px;
-                    
+                    font-size: 25px;
                 }
             }
 
@@ -179,7 +244,7 @@ export component AppWindow inherits Window {
                 Button {
                     bg-color: theme.axn-button;
                     text: "+";
-                    font-size:25px;
+                    font-size: 25px;
                 }
             }
 
@@ -187,11 +252,12 @@ export component AppWindow inherits Window {
                 Button {
                     bg-color: root.background;
                     text: ".";
-                    font-size:25px;
+                    font-size: 25px;
                 }
+
                 Button {
-                    text : 0;
-                    bg-color : root.background;
+                    text: 0;
+                    bg-color: root.background;
                 }
 
                 Button {
@@ -200,13 +266,11 @@ export component AppWindow inherits Window {
                     font-size: 25px;
                 }
 
-
                 Button {
                     bg-color: theme.dark ? #af3a03 : #d65d0e;
                     text: "=";
                     font-color: root.background;
-                    font-size:25px;
-
+                    font-size: 25px;
                 }
             }
         }
