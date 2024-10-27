@@ -7,7 +7,7 @@ slint::include_modules!();
 use dark_light::Mode;
 
 fn remove_first_paren(s: &mut String) -> String {
-    let mut rev: String = s.chars().rev().collect();
+    let mut rev: String = s.chars().rev().collect();    
     println!("{rev}");
     if let Some(pos) = rev.find('(') {
         rev.remove(pos);
@@ -71,21 +71,26 @@ fn main() {
         } else if char.is_operator() {
             if last_char == char {
                 base_expression.pop();
+                paren_str.pop();
             } else if matches!(last_char, |'+'| '-' | '×' | '÷') && matches!(char, '+' | '÷' | '×')
             {
                 base_expression.pop();
+                paren_str.pop();
             } else if matches!(last_char, '×' | '÷') && char == '-' {
                 base_expression.push('(');
                 paren_str.push('(');
                 *paren_count += 1;
             } else if last_char == '+' && char == '-' || last_char == '-' && char == '+' {
                 base_expression.pop();
-            }
-
+                paren_str.pop();
+            } 
             if base_expression.is_empty() {
             } else {
-                base_expression.push(char);
-                paren_str.push(' ');
+                if last_char == '(' && matches!(char, '+'| '×' | '÷'){
+                } else {
+                    base_expression.push(char);
+                    paren_str.push(' ');
+                }
             }
         } else if char == 'C' {
             base_expression.clear();
@@ -96,22 +101,28 @@ fn main() {
                 if *paren_count == 0 {
                     base_expression.push('×');
                     base_expression.push('(');
+                    paren_str.push(' ');
                     paren_str.push('(');
                     *paren_count += 1;
                 } else {
                     base_expression.push(')');
-                    remove_first_paren(&mut paren_str);
+                    paren_str.push(' ');
+                    paren_str.push(' ');
+                    *paren_str = remove_first_paren(&mut paren_str);
                     *paren_count -= 1;
                 }
-            } else if last_char == ')' && char.is_parenthesis() {
+            } else if last_char == ')' {
                 if *paren_count == 0 {
                     base_expression.push('×');
                     base_expression.push('(');
+                    paren_str.push(' ');
                     paren_str.push('(');
                     *paren_count += 1;
                 } else {
                     base_expression.push(')');
-                    remove_first_paren(&mut paren_str);
+                    paren_str.push(' ');
+                    paren_str.push(' ');
+                    *paren_str = remove_first_paren(&mut paren_str);
                     *paren_count -= 1;
                 }
             } else if base_expression.is_empty() {
@@ -122,6 +133,10 @@ fn main() {
                 base_expression.push('(');
                 paren_str.push('(');
                 *paren_count += 1;
+            } else if last_char == '(' {
+                base_expression.push('(');
+                paren_str.push('(');
+                *paren_count += 1;
             }
         } else if char == '<' {
             let popped = match base_expression.pop() {
@@ -129,14 +144,13 @@ fn main() {
                 None => ' ',
             };
             *paren_count += if popped == '(' {
-                paren_str.pop();
                 -1
             } else if popped == ')' {
-                paren_str.pop();
                 1
             } else {
                 0
             };
+            paren_str.pop();
         }
         let app = weak.upgrade().unwrap();
         app.global::<elements>()

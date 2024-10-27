@@ -15,7 +15,6 @@ export global elements {
 
 
 component Button {
-
     in-out property <string> text;
     in property <color> bg-color;
     in property <length> font-size: 20px;
@@ -28,6 +27,7 @@ component Button {
             font-size: font-size;
             color: font-color;
             font-family: theme.font;
+            
         }
 
         drop-shadow-color: self.background.darker(theme.dark ? -10% : 10%);
@@ -206,6 +206,7 @@ export component AppWindow inherits Window {
                     text: "=";
                     font-color: root.background;
                     font-size:25px;
+
                 }
             }
         }
