@@ -8,7 +8,7 @@ export global theme {
 
 export global elements {
     callback touch(string);
-    in property <string> text: " ";
+    in property <string> text: "A bit of a dummy text  to appear here";
     in property <string> paren;
 }
 
@@ -26,7 +26,7 @@ component Button {
             color: font-color;
             font-family: theme.font;
         }
-
+        
         drop-shadow-color: self.background.darker(theme.dark ? -10% : 10%);
         background: ta.pressed ? bg-color.darker(theme.dark ? -15% : 15%) : ta.has-hover ? bg-color.darker(theme.dark ? -40% : 40%) : bg-color.darker(theme.dark ? -20% : 0%);
         border-radius: ta.pressed ? 8px : 20px;
@@ -47,8 +47,11 @@ component Button {
 }
 
 export component AppWindow inherits Window {
+    in-out property <length> big_font : 40px;
+    in-out property <length> smol_font : 30px;
     property <length> delta;
     in-out property <length> scroll_offset_x: root.width - text.width;
+    out property <length> default_scroll_offset_x : root.width - text.width;
     property <length> new_scroll_offset;
     property <duration> delay: 100ms;
     property <duration> duration;
@@ -66,62 +69,72 @@ export component AppWindow inherits Window {
             padding: -1px;
             text := Text {
                 letter-spacing: -0.01px;
-                y: parent.height - self.height;
+                y: parent.height - self.height - 30px;
                 x: scroll_offset_x;
-                height: 55px;
                 text: elements.text;
-                font-size: 40px;
+                font-size: big_font;
                 color: theme.dark ? #ebdbb2 : #3c3836;
                 font-family: theme.font;
                 wrap: char-wrap;
 
-                animate x {
+                animate x, y, font-size {
                     duration: 100ms;
-                    delay: delay;
-                    easing: ease-in-out-quad;
+                    delay: 0ms;
+                    easing: ease-in-out-sine;
                 }
             }
 
             Text {
                 letter-spacing: -0.01px;
-                y: parent.height - self.height;
+                y: parent.height - self.height - 30px;
                 x: scroll_offset_x;
-                height: 55px;
                 text: elements.paren;
-                font-size: 40px;
+                font-size: big_font;
                 color: #fe8019;
                 font-family: theme.font;
                 wrap: char-wrap;
 
-                animate x {
+                animate x, y, font-size {
                     duration: 100ms;
-                    delay: delay;
-                    easing: ease-in-out-quad;
+                    delay: 0ms;
+                    easing: ease-in-out-sine;
+                }
+            }
+
+            Text {
+                x : root.width - self.width;
+                y : parent.height - text.height + 15px;
+                color : white;
+                font-size : smol_font;
+                text : elements.text;
+                font-family: theme.font;
+                animate font-size {
+                     duration : 100ms;
                 }
             }
             left := Rectangle {
                 height : 55px;
                 x : text.width > root.width && scroll_offset_x <= -1px ? 0 : -30px;
-                y : parent.height - self.height;
+                y : parent.height - self.height - 30px;
                 width : 30px;
-                background: @linear-gradient(90deg, rgba(40,40,40,255) 10%, rgba(40,40,40,0) 100%);
+                background: @linear-gradient(90deg, rgba(40,40,40,1) 10%, rgba(40,40,40,0.9023810207676821) 40%, rgba(40,40,40,0) 100%);
     
                 animate x {
                     delay : 100ms;
-                     duration : 200ms;
+                    duration : 200ms;
     
                 }
                 
             }
+            
     
             right := Rectangle {
                 height : 55px;
                 width : 43px;
                 x : scroll_offset_x > root.width - text.width ? root.width - self.width + 3px: root.width;
-                y : parent.height - self.height;
-                background: @linear-gradient(90deg, rgba(40,40,40,0) 00%, rgba(40,40,40,1) 100%);
+                y : parent.height - self.height - 30px;
+                background: @linear-gradient(90deg, rgba(40,40,40,0) 0%, rgba(40,40,40,0.9023810207676821) 60%, rgba(40,40,40,1) 100%);
                 animate x {
-                    delay : 100ms;
                     duration : 200ms;
                 }
             }
@@ -146,7 +159,7 @@ export component AppWindow inherits Window {
                             scroll_offset_x = new_scroll_offset;
                         }
                     }
-                    delay = 100ms;
+                    delay = 0ms;
                     duration = 100ms;
                     accept
                 }

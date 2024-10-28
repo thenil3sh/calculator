@@ -31,15 +31,16 @@ pub fn expression(expression_str : &str) -> Vec<Expression <f64>> {
     let mut expression: Vec<Expression<f64>> = Vec::new();
 
     let mut num = String::new();
-    let mut last_i: char = ' ';
+    let mut last_i = ' ';
 
     for i in expression_string.chars() {
         //let peri = i != ' ' && i != '\'';
-        if i.is_numeric() {
+        if i.is_numeric() || i == '.' {
             num.push(i);
         } else if last_i.is_numeric() && !num.is_empty(){
             expression.push(Number(num.parse().unwrap()));
             num.clear();
+
         }
         if i != ' ' {
             last_i = i
