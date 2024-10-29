@@ -170,6 +170,11 @@ fn main() {
         app.global::<elements>()
             .set_paren(SharedString::from(&*paren_str));
         app.set_scroll_offset_x(app.get_default_scroll_offset_x());
+        app.global::<elements>().set_unclosed_paren(if *paren_count > 0 {
+            true
+        } else {
+            false
+        });
     });
 
     window.run().unwrap();
