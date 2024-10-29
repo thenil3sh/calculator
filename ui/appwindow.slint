@@ -7,9 +7,42 @@ export global theme {
 }
 
 export global elements {
+    in-out property <bool> unclosed_paren : false;
     callback touch(string);
     in property <string> text: "A bit of a dummy text  to appear here";
     in property <string> paren;
+}
+
+export component Hint {
+    //in property <string> hint : "/--------------------\\\n| unclosed parenthesis |\n \\----------v---------/ ";
+    in property <string> hint : "unclosed parenthesis";
+    in property <color> color : #cc241d;
+    in property <length> xx;
+    in property <length> yy;
+    box := Rectangle {
+    drop-shadow-blur: 15px;
+    drop-shadow-color: #1a1919;
+    drop-shadow-offset-y: 5px;
+    
+    background: color;
+    height : text.font-size + 20px;
+    width : text.width + 25px;
+    border-radius: 10px;
+        text := Text {
+        color : #ebdbb2;
+        font-size: 14px;
+            text : hint;
+        }
+    }
+    animate x, y{
+        delay : 100ms;
+         duration : 250ms;
+        easing : ease-in-out-circ;
+    }
+    animate opacity{
+        duration : 100ms;
+        delay : 100ms;
+    }
 }
 
 component Button {
@@ -100,7 +133,6 @@ export component AppWindow inherits Window {
                     easing: ease-in-out-sine;
                 }
             }
-
             Text {
                 x : root.width - self.width;
                 y : parent.height - text.height + 15px;
@@ -126,8 +158,6 @@ export component AppWindow inherits Window {
                 }
                 
             }
-            
-    
             right := Rectangle {
                 height : 55px;
                 width : 43px;
@@ -138,9 +168,18 @@ export component AppWindow inherits Window {
                     duration : 200ms;
                 }
             }
+            Hint {
+            opacity: ta.has-hover && elements.unclosed_paren ? 100% : 0;
+                x : ta.x + ta.mouse-x - self.width/2;
+                y : ta.mouse-y + ta.y - 35px;
+            }
 
-            TouchArea {
-                // Handle scroll event
+            ta := TouchArea {
+                //Handle scroll event
+                x : text.width < root.width ? text.x - 50px : 0;
+                y : text.y;
+                height : text.height;
+                width : root.width;
                 scroll-event(event) => {
                     new_scroll_offset = scroll_offset_x + event.delta-y / 2;
                     delay = 0ms;
