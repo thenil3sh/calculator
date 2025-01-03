@@ -9,6 +9,7 @@ export global theme {
 export global elements {
     in-out property <bool> unclosed_paren: false;
     callback touch(string);
+    in property <string> result : " ";
     in property <string> text: "A bit of a dummy text  to appear here";
     in property <string> paren;
 }
@@ -95,6 +96,9 @@ component Button {
 }
 
 export component AppWindow inherits Window {
+
+    title: "Calculator";
+    icon: @image-url("./icon.png");
     easter := TouchArea {
         width : 50px;
         height : 50px;
@@ -165,7 +169,7 @@ export component AppWindow inherits Window {
                 y: parent.height - text.height + 15px;
                 color: theme.dark ? #a89984 : #504945;
                 font-size: smol_font;
-                text: elements.text;
+                text: elements.result;
                 font-family: theme.font;
                 animate font-size { duration: 100ms; }
             }
@@ -192,7 +196,7 @@ export component AppWindow inherits Window {
             }
 
             Hint {
-                opacity: elements.unclosed_paren && ta.has-hover ? 1 : 0;
+                opacity: 1;
                 x: (root.width - self.width)/2;
                 y: ta.has-hover && elements.unclosed_paren ? 25px : - 50px; 
             }

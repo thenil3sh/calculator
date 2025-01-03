@@ -1,5 +1,5 @@
-mod func;
-use func::{expression, Expression};
+mod mylib;
+use mylib::{Expression, Notation};
 use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -166,7 +166,11 @@ fn main() {
         }
         app.global::<elements>()
             .set_text(SharedString::from(&*base_expression));
-        println!("{:?}", expression(&base_expression));
+        app.global::<elements>()
+            .set_result(SharedString::from(
+                base_expression.to_infix().solve().to_str()
+            ));
+        println!("{}", base_expression.to_infix());
         app.global::<elements>()
             .set_paren(SharedString::from(&*paren_str));
         app.set_scroll_offset_x(app.get_default_scroll_offset_x());

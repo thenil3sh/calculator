@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 dark-light = "1.1.1"
-slint = "1.8.0"
+slint = "1.9.1"
 
 [build-dependencies]
-slint-build = "1.8.0"
+slint-build = "1.9.1"
 
