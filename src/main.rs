@@ -4,7 +4,7 @@ use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
 slint::include_modules!();
-use arboard::Clipboard;
+use copypasta::{ClipboardContext, ClipboardProvider};
 use dark_light::Mode;
 
 fn remove_first_paren(s: &mut String) -> String {
@@ -32,7 +32,8 @@ impl TypeOfchar for char {
     }
 }
 
-fn main() {
+#[cfg_attr(target_arch = "wasm32",wasm_bindgen::prelude::wasm_bindgen(start))]
+pub fn main() {
     let window = AppWindow::new().unwrap();
     let oreo = Rc::new(RefCell::new(String::new()));
     let paren_count = Rc::new(RefCell::new(0));
@@ -163,11 +164,11 @@ fn main() {
             .set_unclosed_paren(*paren_count > 0);
     });
 
-    let copy = window.as_weak();
+    // let copy = window.as_weak();
     window.global::<elements>().on_copy(move |string| {
-        let mut clipboard = Clipboard::new().unwrap();
+        let mut clipboard = ClipboardContext::new().unwrap();
         let string = string.to_string();
-        clipboard.set_text(&string).unwrap();
+        clipboard.set_contents(string.to_owned()).unwrap();
         println!("Copied {:?}", string);
     });
 

@@ -124,12 +124,14 @@ export component AppWindow inherits Window {
     property <duration> duration;
     in-out property <length> scroll_offset_x;
     out property <length> default_scroll_offset_x: root.width - expression.width - 20px;
-    min-height: 400px;
-    min-width: 300px;
-    max-width: 600px;
-    max-height: 800px;
-    preferred-height: 500px;
-    preferred-width: 500px;
+    // min-height: 400px;
+    // min-width: 300px;
+    // max-width: 600px;
+    // max-height: 800px;
+    // preferred-height: 500px;
+    // preferred-width: 500px;
+    height :  600px;
+    width : 400px;
     background: theme.dark ? #282828 : #fbf1c7;
     VerticalLayout {
         alignment: end;
