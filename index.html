@@ -1,0 +1,42 @@
+<html>
+<style>
+    /* Adapt to system theme */
+    :root {
+        --background-color: white;
+        --text-color: black;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --background-color: #282828;
+            --text-color: #ebdbb2;
+        }
+    }
+
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        text-align: center;
+    }
+</style>
+
+<body>
+    <!-- canvas required by the Slint runtime -->
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        // import the generated file.
+        import init from "./pkg/calc.js";
+        init();
+    </script>
+</body>
+
+</html>

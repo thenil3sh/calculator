@@ -4,9 +4,21 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+copypasta = "0.10.1"
 dark-light = "1.1.1"
-slint = "1.9.1"
+slint = "1.9.2"
 
 [build-dependencies]
-slint-build = "1.9.1"
+slint-build = "1.9.2"
 
+
+[profile.release]
+opt-level = 3
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2" }
+getrandom = { version = "0.2.2", features = ["js"] }
+
+[lib]
+path = "src/main.rs"
+crate-type = ["cdylib"]

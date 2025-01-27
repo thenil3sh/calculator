@@ -1,9 +1,10 @@
 mod mylib;
-use mylib::{Expression, Notation};
+use mylib::Notation;
 use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
 slint::include_modules!();
+use copypasta::{ClipboardContext, ClipboardProvider};
 use dark_light::Mode;
 
 fn remove_first_paren(s: &mut String) -> String {
@@ -31,7 +32,8 @@ impl TypeOfchar for char {
     }
 }
 
-fn main() {
+#[cfg_attr(target_arch = "wasm32",wasm_bindgen::prelude::wasm_bindgen(start))]
+pub fn main() {
     let window = AppWindow::new().unwrap();
     let oreo = Rc::new(RefCell::new(String::new()));
     let paren_count = Rc::new(RefCell::new(0));
@@ -56,15 +58,12 @@ fn main() {
     window.global::<elements>().on_touch(move |char| {
         let app = weak.upgrade().unwrap();
         let char = char.to_string();
-        let char = char.chars().nth(0).unwrap();
+        let char = char.chars().next().unwrap();
         let mut paren_str = paren_str_clone.borrow_mut();
         let mut paren_count = paren_clone.borrow_mut();
         let mut points = point_clone.borrow_mut();
         let mut base_expression = pika.borrow_mut();
-        let last_char = match base_expression.chars().last() {
-            Some(x) => x,
-            None => ' ',
-        };
+        let last_char = base_expression.chars().last().unwrap_or(' ');
         if char.is_numeric() || char == '.' {
             if last_char == ')' {
                 base_expression.push('×');
@@ -72,7 +71,10 @@ fn main() {
 
             if char == '.' {
                 if !*points {
-                    if (matches!(last_char, '+' | '-' | '×' | '÷' | '(' | ')') || base_expression.is_empty()) && !*points {
+                    if (matches!(last_char, '+' | '-' | '×' | '÷' | '(' | ')')
+                        || base_expression.is_empty())
+                        && !*points
+                    {
                         base_expression.push('0');
                         paren_str.push(' ');
                     }
@@ -85,10 +87,8 @@ fn main() {
                 paren_str.push(' ');
             }
         } else if char.is_operator() {
-            if last_char == char {
-                base_expression.pop();
-                paren_str.pop();
-            } else if matches!(last_char, |'+'| '-' | '×' | '÷') && matches!(char, '+' | '÷' | '×')
+            if last_char == char
+                || (matches!(last_char, |'+'| '-' | '×' | '÷') && matches!(char, '+' | '÷' | '×'))
             {
                 base_expression.pop();
                 paren_str.pop();
@@ -103,15 +103,12 @@ fn main() {
             }
 
             if base_expression.is_empty() {
-             //else if last_char == {
-
+                //else if last_char == {
+            } else if matches!(last_char, '(' | '.') && matches!(char, '+' | '×' | '÷') {
             } else {
-                if matches!(last_char, '(' | '.') && matches!(char, '+' | '×' | '÷') {
-                } else {
-                    base_expression.push(char);
-                    *points = false;
-                    paren_str.push(' ');
-                }
+                base_expression.push(char);
+                *points = false;
+                paren_str.push(' ');
             }
         } else if char == 'C' {
             base_expression.clear();
@@ -132,24 +129,13 @@ fn main() {
                     paren_str.push(' ');
                     *paren_count -= 1;
                 }
-            } else if base_expression.is_empty() {
-                base_expression.push('(');
-                paren_str.push('(');
-                *paren_count += 1;
-            } else if last_char.is_operator() {
-                base_expression.push('(');
-                paren_str.push('(');
-                *paren_count += 1;
-            } else if last_char == '(' {
+            } else if base_expression.is_empty() || last_char.is_operator() || last_char == '(' {
                 base_expression.push('(');
                 paren_str.push('(');
                 *paren_count += 1;
             }
         } else if char == '<' {
-            let popped = match base_expression.pop() {
-                Some(x) => x,
-                None => ' ',
-            };
+            let popped = base_expression.pop().unwrap_or(' ');
             *paren_count += if popped == '(' {
                 -1
             } else if popped == ')' {
@@ -159,26 +145,31 @@ fn main() {
             };
             paren_str.pop();
         } else if char == '=' {
-            let temp = app.get_big_font();
-            app.set_big_font(app.get_smol_font());
-            app.set_smol_font(temp);
-
+            
         }
         app.global::<elements>()
             .set_text(SharedString::from(&*base_expression));
-        app.global::<elements>()
-            .set_result(SharedString::from(
-                base_expression.to_infix().solve().to_str()
-            ));
+        app.global::<elements>().set_result(SharedString::from(
+            base_expression.to_infix().solve().to_str(),
+        ));
         println!("{}", base_expression.to_infix());
         app.global::<elements>()
             .set_paren(SharedString::from(&*paren_str));
-        app.set_scroll_offset_x(app.get_default_scroll_offset_x());
-        app.global::<elements>().set_unclosed_paren(if *paren_count > 0 {
-            true
-        } else {
-            false
-        });
+
+        app.global::<elements>().set_result_state(
+            char == '=' && !app.global::<elements>().get_result_state()
+        );
+        app.set_scroll_offset_x(0.0);//);
+        app.global::<elements>()
+            .set_unclosed_paren(*paren_count > 0);
+    });
+
+    // let copy = window.as_weak();
+    window.global::<elements>().on_copy(move |string| {
+        let mut clipboard = ClipboardContext::new().unwrap();
+        let string = string.to_string();
+        clipboard.set_contents(string.to_owned()).unwrap();
+        println!("Copied {:?}", string);
     });
 
     window.run().unwrap();

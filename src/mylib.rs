@@ -18,7 +18,7 @@ pub enum Paren {
 
 pub enum CalculationState {
     Success(f64),
-    Imaginary,
+    //Imaginary,
     Infinite,
     Indeterminate,
     Heart,
@@ -31,7 +31,7 @@ impl CalculationState {
     pub fn to_str(&self) -> String {
         match self {
             Self::Success(num) => num.to_string(),
-            Self::Imaginary => String::from("Not real"),
+            //Self::Imaginary => String::from("Not real"),
             Self::Infinite => String::from("Infinite"),
             Self::Indeterminate => String::from("Indeterminate"),
             Self::Hate => String::from(":( "),
@@ -117,11 +117,11 @@ impl Notation for String {
             if !i.is_numeric() {
                 expression.push(match i {
                     '(' => {
-                        paren_count = paren_count + 1;
+                        paren_count += 1;
                         Parenthesis(Left)
                     }
                     ')' => {
-                        paren_count = paren_count - 1;
+                        paren_count -= 1;
                         Parenthesis(Right)
                     }
                     '+' => Op(Add),
@@ -136,24 +136,26 @@ impl Notation for String {
             }
             last_i = i;
         }
-    
+
         loop {
-            if let Op(_) = expression.last().unwrap_or_else(|| {
-                &Expression::Number(0.0)
-            }){
+            if let Op(_) = expression
+                .last()
+                .unwrap_or(&Expression::Number(0.0))
+            {
                 expression.pop();
-            } else if let Parenthesis(Left) = expression.last().unwrap_or_else(|| {
-                &Expression::Number(0.0)
-            }) {
+            } else if let Parenthesis(Left) = expression
+                .last()
+                .unwrap_or(&Expression::Number(0.0))
+            {
                 expression.pop();
-                paren_count = paren_count - 1;
+                paren_count -= 1;
             } else {
                 break;
             }
         }
         while paren_count > 0 {
             expression.push(Parenthesis(Right));
-            paren_count = paren_count - 1;
+            paren_count -= 1;
         }
         NotationType::Infix(expression)
     }
@@ -317,15 +319,15 @@ impl NotationType {
                 },
                 Number(x) => {
                     p_list.push_front(*x);
-                    num_count = num_count + 1;
+                    num_count += 1;
                 } // Something => todo!("Bro how in the world did'ya even get here"),
             }
         }
 
         println!("\x1b[33mp_list has : {} elements \x1b[0m", p_list.len());
         match state {
-            CalculationState::Success(num) => {
-                let value = p_list.pop_front().unwrap_or_else(||0.0);
+            CalculationState::Success(_num) => {
+                let value = p_list.pop_front().unwrap_or(0.0);
                 if num_count == 1 {
                     if value == 143.0 {
                         CalculationState::Heart
@@ -339,9 +341,8 @@ impl NotationType {
                 } else {
                     CalculationState::Success(value)
                 }
-            },
-            x => x
-
+            }
+            x => x,
         }
     }
 }
