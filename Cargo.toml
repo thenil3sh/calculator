@@ -4,9 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+arboard = "3.4.1"
 dark-light = "1.1.1"
-slint = "1.9.1"
+slint = "1.9.2"
 
 [build-dependencies]
-slint-build = "1.9.1"
+slint-build = "1.9.2"
 
+
+[profile.release]
+opt-level = 3

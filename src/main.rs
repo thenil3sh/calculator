@@ -4,6 +4,7 @@ use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
 slint::include_modules!();
+use arboard::Clipboard;
 use dark_light::Mode;
 
 fn remove_first_paren(s: &mut String) -> String {
@@ -85,7 +86,8 @@ fn main() {
                 paren_str.push(' ');
             }
         } else if char.is_operator() {
-            if last_char == char || (matches!(last_char, |'+'| '-' | '×' | '÷') && matches!(char, '+' | '÷' | '×'))
+            if last_char == char
+                || (matches!(last_char, |'+'| '-' | '×' | '÷') && matches!(char, '+' | '÷' | '×'))
             {
                 base_expression.pop();
                 paren_str.pop();
@@ -142,9 +144,7 @@ fn main() {
             };
             paren_str.pop();
         } else if char == '=' {
-            let temp = app.get_big_font();
-            app.set_big_font(app.get_smol_font());
-            app.set_smol_font(temp);
+            
         }
         app.global::<elements>()
             .set_text(SharedString::from(&*base_expression));
@@ -154,9 +154,21 @@ fn main() {
         println!("{}", base_expression.to_infix());
         app.global::<elements>()
             .set_paren(SharedString::from(&*paren_str));
-        app.set_scroll_offset_x(app.get_default_scroll_offset_x());
+
+        app.global::<elements>().set_result_state(
+            char == '=' && !app.global::<elements>().get_result_state()
+        );
+        app.set_scroll_offset_x(0.0);//);
         app.global::<elements>()
             .set_unclosed_paren(*paren_count > 0);
+    });
+
+    let copy = window.as_weak();
+    window.global::<elements>().on_copy(move |string| {
+        let mut clipboard = Clipboard::new().unwrap();
+        let string = string.to_string();
+        clipboard.set_text(&string).unwrap();
+        println!("Copied {:?}", string);
     });
 
     window.run().unwrap();

@@ -1,5 +1,5 @@
 import "./JetBrainsMono-Regular.ttf";
-import { Button } from "std-widgets.slint";
+// import { Button } from "std-widgets.slint";
 export global theme {
     in property <bool> dark: false;
     in property <string> font: "JetBrains Mono";
@@ -9,16 +9,18 @@ export global theme {
 export global elements {
     in-out property <bool> unclosed_paren: false;
     callback touch(string);
-    in property <string> result : " ";
-    in property <string> text: "A bit of a dummy text  to appear here";
+    in property <string> result: " ";
+    in property <string> text: result_state ? "true" : "false"; //"A bit of a dummy text  to appear here";
     in property <string> paren;
+    in property <bool> result_state: false;
+    callback copy(string);
 }
 
 component Hint {
     //in property <string> hint : "/--------------------\\\n| unclosed parenthesis |\n \\----------v---------/ ";
     in property <string> hint: "⚫ unclosed parenthesis ⚫";
     in property <color> color:#d65d0e;
-    in property <duration> delay : 0ms;
+    in property <duration> delay: 0ms;
 
     box := Rectangle {
         drop-shadow-blur: root.opacity == 100% ? 10px : 30px;
@@ -40,21 +42,24 @@ component Hint {
             color: #3c3836;
             font-size: 14px;
             text: hint;
-
         }
 
         animate drop-shadow-blur {
-            delay : 750ms;
+            delay: 750ms;
             easing: ease-out;
             duration: 1000ms;
         }
+        animate width {
+            duration : 250ms;
+            easing : ease-out;
+        }
     }
 
-    animate y {
-        delay : delay;
-        duration: 1200ms;
-        easing: ease-out-elastic;
-    }
+    // animate y {
+    //     delay: delay;
+    //     duration: 1200ms;
+    //     easing: ease-out-elastic;
+    // }
     animate opacity {
         duration: 100ms;
         delay: 100ms;
@@ -98,121 +103,102 @@ component Button {
 export component AppWindow inherits Window {
 
     title: "Calculator";
-    icon: @image-url("./icon.png");
+    icon: @image-url("./calculator.svg");
     easter := TouchArea {
-        width : 50px;
-        height : 50px;
-        x : 0;
-        y : 0;
-        clicked => {theme.dark = !theme.dark}
+        width: 50px;
+        height: 50px;
+        x: 0;
+        y: 0;
+        clicked => {
+            theme.dark = !theme.dark
+        }
     }
+
     in-out property <length> big_font: 40px;
     in-out property <length> smol_font: 30px;
     property <length> delta;
-    in-out property <length> scroll_offset_x: root.width - text.width;
-    out property <length> default_scroll_offset_x: root.width - text.width;
+    // in-out property <length> scroll_offset_x: root.width - text.width;
+    // out property <length> default_scroll_offset_x: root.width - text.width;
     property <length> new_scroll_offset;
     property <duration> delay: 100ms;
     property <duration> duration;
+    in-out property <length> scroll_offset_x;
+    out property <length> default_scroll_offset_x: root.width - expression.width - 20px;
     min-height: 400px;
     min-width: 300px;
+    max-width: 600px;
+    max-height: 800px;
     preferred-height: 500px;
     preferred-width: 500px;
     background: theme.dark ? #282828 : #fbf1c7;
     VerticalLayout {
-        textArea := Rectangle {
-            height: root.height * 40%;
-            border-color: red;
-            width: root.width;
-            padding: -1px;
-            text := Text {
-                letter-spacing: -0.01px;
-                y: parent.height - self.height - 30px;
-                x: scroll_offset_x;
+        alignment: end;
+        padding: 5px;
+        padding-bottom: 5px;
+        rect := Rectangle {
+            border-color: root.background;
+            border-width: 10px;
+            height: root.height * 0.4;
+            // Rectangle {
+                expression := Text {
+                x: root.width - self.width - 20px - scroll_offset_x;
+                y: rect.height - self.height - Result.height;
                 text: elements.text;
-                font-size: big_font;
-                color: theme.dark ? #ebdbb2 : #3c3836;
-                font-family: theme.font;
-                wrap: char-wrap;
-
-                animate x, y, font-size {
-                    duration: 100ms;
-                    delay: 0ms;
-                    easing: ease-in-out-sine;
+                horizontal-alignment: right;
+                font-size: 40px;
+                font-family: "JetBrains Mono";
+                animate font-size, color {
+                    duration: 150ms;
+                    easing: ease-out;
+                }
+                animate x {
+                    duration: 150ms;
+                    easing: ease-out;
                 }
             }
 
             parenthesus := Text {
-                letter-spacing: -0.01px;
-                y: parent.height - self.height - 30px;
-                x: scroll_offset_x;
+                x: root.width - self.width - 20px - scroll_offset_x;
+                y: rect.height - self.height - Result.height;
                 text: elements.paren;
-                font-size: big_font;
-                color: theme.dark ? (ta.has-hover ? #d65d0e : #fe8019) : (ta.has-hover ? #fe8019 : #af3a03);
-                font-family: theme.font;
-                wrap: char-wrap;
-                animate x, y, font-size {
+                horizontal-alignment: right;
+                font-size: 40px;
+                font-family: "JetBrains Mono";
+                color: theme.dark ? (ta.has-hover ? #bc540e : #ff8b2d) : (ta.has-hover ? #ff943c : #d65600);
+                visible: true;
+                animate font-size, x {
+                    duration: 150ms;
+                    easing: ease-out;
+                }
+                animate color, opacity {
                     duration: 100ms;
-                    delay: 0ms;
-                    easing: ease-in-out-sine;
-                }
-                animate color {
-                    delay: 100ms;
-                    duration: 200ms;
-                    iteration-count: 2;
-                    easing: ease-in-out-back;
+                    easing: ease-in-out;
+                    iteration-count: 3;
+                    direction: alternate;
                 }
             }
+            // }
 
-            Text {
-                x: root.width - self.width;
-                y: parent.height - text.height + 15px;
-                color: theme.dark ? #a89984 : #504945;
-                font-size: smol_font;
+            // ta := TouchArea { }
+
+            Result := Text {
+                x: root.width - self.width - 20px;
+                y: parent.height - self.height;
+                horizontal-alignment: right;
                 text: elements.result;
-                font-family: theme.font;
-                animate font-size { duration: 100ms; }
-            }
-
-            left := Rectangle {
-                height: 55px;
-                x: text.width > root.width && scroll_offset_x <= -1px ? 0 : -30px;
-                y: parent.height - self.height - 30px;
-                width: 30px;
-                background: theme.dark ? @linear-gradient(90deg, rgba(40,40,40,1) 10%, rgba(40,40,40,0.9023810207676821) 40%, rgba(40,40,40,0) 100%) : @linear-gradient(90deg, rgba(251,241,199,1) 10%, rgba(251,241,199,0.9023810207676821) 40%, rgba(251,241,199,0) 100%);
-                animate x {
-                    delay: 100ms;
-                    duration: 200ms;
+                font-size: 30px;
+                font-family: "JetBrains Mono";
+                animate font-size, color {
+                    duration: 150ms;
+                    easing: ease-out;
                 }
             }
 
-            right := Rectangle {
-                height: 55px;
-                width: 43px;
-                x: scroll_offset_x > root.width - text.width ? root.width - self.width + 3px : root.width;
-                y: parent.height - self.height - 30px;
-                background: theme.dark ? @linear-gradient(-90deg, rgba(40,40,40,1) 10%, rgba(40,40,40,0.9023810207676821) 40%, rgba(40,40,40,0) 100%) : @linear-gradient(-90deg, rgba(251,241,199,1) 10%, rgba(251,241,199,0.9023810207676821) 40%, rgba(251,241,199,0) 100%);
-                animate x { duration: 200ms; }
-            }
-
-            Hint {
-                opacity: 1;
-                x: (root.width - self.width)/2;
-                y: ta.has-hover && elements.unclosed_paren ? 25px : - 50px; 
-            }
-
-            Hint {
-                hint : "★ click! click! ★";
-                delay : 5000ms;
-                opacity: easter.has-hover ? 1 : 0;
-                x: (root.width - self.width)/2;
-                y: easter.has-hover  ? 25px : - 50px;
-            }
             ta := TouchArea {
                 //Handle scroll event
-                x: text.width < root.width ? text.x - 50px : 0;
-                y: text.y;
-                height: text.height;
+                //expression.width < root.width ? expression.x - 50px : 0;
+                y: (elements.result_state ? Result.y : expression.y) - 20px;
+                height: expression.font-size + 40px;
                 width: root.width;
                 scroll-event(event) => {
                     new_scroll_offset = scroll_offset_x + event.delta-y / 2;
@@ -220,29 +206,64 @@ export component AppWindow inherits Window {
                     duration = 200ms;
                     
                     // Clamp scroll_offset_x to ensure it stays within bounds
-                    if root.width > text.width {
+                    if (root.width > expression.width) {
                         // If the text fits within the window, keep it aligned to the right
                         reject
                     } else {
-                        if new_scroll_offset > 0 {
+                        if (new_scroll_offset > 0) {
                             scroll_offset_x = 0;
-                        } else if new_scroll_offset < root.width - text.width {
-                            scroll_offset_x = root.width - text.width;
+                        } else if (new_scroll_offset < root.width - expression.width) {
+                            scroll_offset_x = root.width - expression.width - 20px;
                         } else {
-                            scroll_offset_x = new_scroll_offset;
+                            scroll_offset_x = new_scroll_offset - 10px;
                         }
                     }
                     delay = 0ms;
                     duration = 100ms;
                     accept
                 }
+                clicked => {
+                    copy_hint.color = #b8bb26;
+                    copy_hint.hint = "✱ Copied! ✱";
+                    copy_timer.running = true;
+                    elements.copy(elements.result);
+                }
             }
         }
+        
+            // x : root.width;
 
-        Grid := GridLayout {
-            padding: 6px;
-            height: root.height * 60%;
-            spacing: 5px;
+        states [
+            result_zoom when elements.result_state: {
+                Result.font-size: 40px;
+                expression.font-size: 30px;
+                Result.color: theme.dark ? #fbf1c7 : #282828;
+                expression.color: theme.dark ? #d5c4a1 : #504945;
+                expression.x: root.width - expression.width - 20px;
+                parenthesus.font-size: 30px;
+            }
+            result_no_zoom when !elements.result_state: {
+                Result.font-size: 30px;
+                expression.font-size: 40px;
+                Result.color: theme.dark ? #d5c4a1 : #504945;
+                expression.color: theme.dark ? #fbf1c7 : #282828;
+                parenthesus.font-size: 40px;
+            }
+        ]
+
+                // states [
+                //     zoomed_result when elements.result_state: {
+                //         text.font-size: 30px;
+                //         result.font-size: 40px;
+                //     }
+                // ]
+
+
+    Grid := GridLayout {
+            padding: 5px;
+            padding-bottom: 15px;
+            height: root.height * 0.6;
+            spacing: 4px;
             Row {
                 Button {
                     bg-color: theme.dark ? #ff403d : #cc241d;
@@ -359,6 +380,44 @@ export component AppWindow inherits Window {
                     font-size: 25px;
                 }
             }
+        }
+    }
+
+    Hint { 
+        y : elements.unclosed_paren && ta.has-hover && !elements.result_state ? root.height * 0.1 : -50px;
+
+        animate y {
+            duration : 500ms;
+            easing : ease-in-out-back;
+        }
+    }
+
+    copy_hint := Hint {
+        hint : "Copy Result?";
+        y : ta.has-hover && elements.result_state ? root.height * 0.1 : -50px; 
+        animate y {
+            duration : 500ms;
+            easing : ease-in-out-back;
+        }
+        animate color {
+            duration : 250ms;
+            easing : ease-out;
+        }
+    }
+
+    copy_timer := Timer {
+        running : false;
+        interval : 1000ms;
+        property <int> value : 0;
+        triggered => {
+            if value == 2 {
+                copy_hint.color = #d65d0e;
+                self.running = false;
+                copy_hint.hint = "Copy Result?";
+                value = 0;
+                return;
+            }
+            value += 1;
         }
     }
 }
