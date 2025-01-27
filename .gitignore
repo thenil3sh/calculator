@@ -1,5 +1,5 @@
 #build files reside here. . .
 /target
 
-#project configuration for Rust Rover
 /.idea
+/.vscode
