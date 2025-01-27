@@ -1,5 +1,7 @@
 #build files reside here. . .
 /target
+/pkg
 
-#project configuration for Rust Rover
+#project configuration for Editor
 /.idea
+/.vscode
