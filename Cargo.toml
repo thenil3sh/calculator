@@ -2,14 +2,15 @@
 name = "calc"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.85.0"
 
 [dependencies]
-copypasta = "0.10.1"
+clipboard = "0.5.0"
 dark-light = "1.1.1"
-slint = "1.9.2"
+slint = "1.10.0"
 
 [build-dependencies]
-slint-build = "1.9.2"
+slint-build = "1.10.0"
 
 
 [profile.release]
@@ -22,3 +23,4 @@ getrandom = { version = "0.2.2", features = ["js"] }
 [lib]
 path = "src/main.rs"
 crate-type = ["cdylib"]
+
