@@ -366,21 +366,17 @@ trait Result {
 
 impl Result for f64 {
     fn approximate(&self) -> String {
-        // let string = self.to_string();
-        // let fp_pos = match string.find('.') {
-        //     Some(x) => {
-        //         x
-        //     },
-        //     None => self.to_string().len(),
-        // };
-        // let formatting = format!(":{}.{}e", fp_pos, string.len() - fp_pos);
-        let f64_string = format!("{}", self);
-        if f64_string.len() > 14 {
+        if self.to_string().len() >= 12 {
             let string = format!("{:1.9e}", self);
             let e_pos = string.find('e').unwrap();
             format!("{}{}", string[..e_pos].trim_end_matches('0'), &string[e_pos..])
         } else {
-            f64_string
+            self.to_string()
         }
     }
+}
+
+#[cfg(target_os="linux")]
+fn copy(str : String) {
+    
 }

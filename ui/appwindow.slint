@@ -20,7 +20,7 @@ component Hint {
     //in property <string> hint : "/--------------------\\\n| unclosed parenthesis |\n \\----------v---------/ ";
     in property <string> hint: "⚫ unclosed parenthesis ⚫";
     in property <color> color:#d65d0e;
-    in property <duration> delay: 0ms;
+    // in property <duration> delay: 0ms;
 
     box := Rectangle {
         drop-shadow-blur: root.opacity == 100% ? 10px : 30px;
@@ -50,8 +50,8 @@ component Hint {
             duration: 1000ms;
         }
         animate width {
-            duration : 250ms;
-            easing : ease-out;
+            duration: 250ms;
+            easing: ease-out;
         }
     }
 
@@ -71,6 +71,7 @@ component Button {
     in property <color> bg-color;
     in property <length> font-size: 20px;
     in property <color> font-color: theme.dark ? #fbf1c7 : #282828;
+    callback clicked(string);
     Rectangle {
         min-width: 20px;
         min-height: 15px;
@@ -94,6 +95,9 @@ component Button {
         }
         ta := TouchArea {
             clicked => {
+                // if num.text == "=" {
+                //     elements.result_state = !elements.result_state;
+                // }
                 elements.touch(num.text);
             }
         }
@@ -123,15 +127,15 @@ export component AppWindow inherits Window {
     property <duration> delay: 100ms;
     property <duration> duration;
     in-out property <length> scroll_offset_x;
-    out property <length> default_scroll_offset_x: root.width - expression.width - 20px;
+    // out property <length> default_scroll_offset_x: root.width - expression.width - 20px;
     // min-height: 400px;
     // min-width: 300px;
     // max-width: 600px;
     // max-height: 800px;
     // preferred-height: 500px;
     // preferred-width: 500px;
-    height :  600px;
-    width : 400px;
+    height: 600px;
+    width: 400px;
     background: theme.dark ? #282828 : #fbf1c7;
     VerticalLayout {
         alignment: end;
@@ -140,27 +144,24 @@ export component AppWindow inherits Window {
         rect := Rectangle {
             border-color: root.background;
             border-width: 10px;
-            height: root.height * 0.4;
+            height: root.height * 40%;
             // Rectangle {
                 expression := Text {
-                x: root.width - self.width - 20px - scroll_offset_x;
+                x: root.width - self.text.character-count * (elements.result_state ? 18px : 24px) - 20px
+                - scroll_offset_x;
                 y: rect.height - self.height - Result.height;
                 text: elements.text;
                 horizontal-alignment: right;
                 font-size: 40px;
                 font-family: "JetBrains Mono";
-                animate font-size, color {
-                    duration: 150ms;
-                    easing: ease-out;
-                }
-                animate x {
+                animate font-size, color, x {
                     duration: 150ms;
                     easing: ease-out;
                 }
             }
 
             parenthesus := Text {
-                x: root.width - self.width - 20px - scroll_offset_x;
+                x: root.width - 20px - scroll_offset_x - self.text.character-count * (elements.result_state ? 18px : 24px);
                 y: rect.height - self.height - Result.height;
                 text: elements.paren;
                 horizontal-alignment: right;
@@ -199,13 +200,12 @@ export component AppWindow inherits Window {
             ta := TouchArea {
                 //Handle scroll event
                 //expression.width < root.width ? expression.x - 50px : 0;
-                y: (elements.result_state ? Result.y : expression.y) - 20px;
-                height: expression.font-size + 40px;
+                y: expression.y - 20px;
+                height: expression.height + Result.height + 20px;
                 width: root.width;
                 scroll-event(event) => {
                     new_scroll_offset = scroll_offset_x + event.delta-y / 2;
-                    delay = 0ms;
-                    duration = 200ms;
+                    
                     
                     // Clamp scroll_offset_x to ensure it stays within bounds
                     if (root.width > expression.width) {
@@ -217,7 +217,7 @@ export component AppWindow inherits Window {
                         } else if (new_scroll_offset < root.width - expression.width) {
                             scroll_offset_x = root.width - expression.width - 20px;
                         } else {
-                            scroll_offset_x = new_scroll_offset - 10px;
+                            scroll_offset_x = new_scroll_offset + 20px;
                         }
                     }
                     delay = 0ms;
@@ -225,10 +225,13 @@ export component AppWindow inherits Window {
                     accept
                 }
                 clicked => {
-                    copy_hint.color = #b8bb26;
-                    copy_hint.hint = "✱ Copied! ✱";
-                    copy_timer.running = true;
-                    elements.copy(elements.result);
+                    if elements.result_state {
+                        copy_hint.color = #b8bb26;
+                        copy_hint.hint = "✱ Copied! ✱";
+                        copy_timer.running = true;
+    
+                        elements.copy(elements.result);
+                    }
                 }
             }
         }
@@ -241,7 +244,7 @@ export component AppWindow inherits Window {
                 expression.font-size: 30px;
                 Result.color: theme.dark ? #fbf1c7 : #282828;
                 expression.color: theme.dark ? #d5c4a1 : #504945;
-                expression.x: root.width - expression.width - 20px;
+                // expression.x: root.width - expression.width - 20px;
                 parenthesus.font-size: 30px;
             }
             result_no_zoom when !elements.result_state: {
@@ -264,7 +267,7 @@ export component AppWindow inherits Window {
     Grid := GridLayout {
             padding: 5px;
             padding-bottom: 15px;
-            height: root.height * 0.6;
+            height: root.height * 59%;
             spacing: 4px;
             Row {
                 Button {
@@ -385,32 +388,32 @@ export component AppWindow inherits Window {
         }
     }
 
-    Hint { 
-        y : elements.unclosed_paren && ta.has-hover && !elements.result_state ? root.height * 0.1 : -50px;
+    Hint {
+        y: elements.unclosed_paren && ta.has-hover && !elements.result_state ? root.height * 0.1 : -50px;
 
         animate y {
-            duration : 500ms;
-            easing : ease-in-out-back;
+            duration: 500ms;
+            easing: ease-in-out-back;
         }
     }
 
     copy_hint := Hint {
-        hint : "Copy Result?";
-        y : ta.has-hover && elements.result_state ? root.height * 0.1 : -50px; 
+        hint: "Copy Result?";
+        y: ta.has-hover && elements.result_state ? root.height * 0.1 : -50px;
         animate y {
-            duration : 500ms;
-            easing : ease-in-out-back;
+            duration: 500ms;
+            easing: ease-in-out-back;
         }
         animate color {
-            duration : 250ms;
-            easing : ease-out;
+            duration: 250ms;
+            easing: ease-out;
         }
     }
 
     copy_timer := Timer {
-        running : false;
-        interval : 1000ms;
-        property <int> value : 0;
+        running: false;
+        interval: 1000ms;
+        property <int> value: 0;
         triggered => {
             if value == 2 {
                 copy_hint.color = #d65d0e;

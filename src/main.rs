@@ -1,10 +1,12 @@
+use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
 use my_lib::Notation;
 use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
-slint::include_modules!();
-use copypasta::{ClipboardContext, ClipboardProvider};
+
 use dark_light::Mode;
+slint::include_modules!();
 
 fn remove_first_paren(s: &mut String) -> String {
     let mut rev: String = s.chars().rev().collect();
@@ -31,7 +33,7 @@ impl TypeOfchar for char {
     }
 }
 
-#[cfg_attr(target_arch = "wasm32",wasm_bindgen::prelude::wasm_bindgen(start))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
 pub fn main() {
     let window = AppWindow::new().unwrap();
     let oreo = Rc::new(RefCell::new(String::new()));
@@ -66,6 +68,7 @@ pub fn main() {
         if char.is_numeric() || char == '.' {
             if last_char == ')' {
                 base_expression.push('×');
+                paren_str.push(' ');
             }
 
             if char == '.' {
@@ -144,32 +147,41 @@ pub fn main() {
             };
             paren_str.pop();
         } else if char == '=' {
-            
         }
         app.global::<elements>()
             .set_text(SharedString::from(&*base_expression));
         app.global::<elements>().set_result(SharedString::from(
-            base_expression.to_infix().solve().to_string()
+            base_expression.to_infix().solve().to_string(),
         ));
         println!("{}", base_expression.to_infix());
         app.global::<elements>()
             .set_paren(SharedString::from(&*paren_str));
 
-        app.global::<elements>().set_result_state(
-            char == '=' && !app.global::<elements>().get_result_state()
-        );
-        app.set_scroll_offset_x(0.0);//);
+        app.global::<elements>()
+            .set_result_state(char == '=' && !app.global::<elements>().get_result_state());
+        app.set_scroll_offset_x(0.0); //);
         app.global::<elements>()
             .set_unclosed_paren(*paren_count > 0);
     });
 
     // let copy = window.as_weak();
     window.global::<elements>().on_copy(move |string| {
-        let mut clipboard = ClipboardContext::new().unwrap();
-        let string = string.to_string();
-        clipboard.set_contents(string.to_owned()).unwrap();
-        println!("Copied {:?}", string);
+
+        // If you want to compile it for wayland // // // // // //
+        // use wl_clipboard_rs::copy::{MimeType, Options, Source};
+
+        // let opts = Options::new();
+        // opts.copy(
+        //     Source::Bytes(string.to_string().into_bytes().into()),
+        //     MimeType::Autodetect,
+        // ).unwrap();
+
+        // For Compiling it on Other Platforms // // // /// // // //
+        let mut ctx = ClipboardContext::new().unwrap();
+        ctx.set_contents(string.to_string()).unwrap();
     });
 
     window.run().unwrap();
 }
+
+
