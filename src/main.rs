@@ -33,8 +33,7 @@ impl TypeOfchar for char {
     }
 }
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
-pub fn main() {
+fn main() {
     let window = AppWindow::new().unwrap();
     let oreo = Rc::new(RefCell::new(String::new()));
     let paren_count = Rc::new(RefCell::new(0));
@@ -105,8 +104,16 @@ pub fn main() {
             }
 
             if base_expression.is_empty() {
-                //else if last_char == {
+                if char == '-' {
+                    base_expression.push('(');
+                    base_expression.push(char);
+                    *points = false;
+                    *paren_count += 1;
+                    paren_str.push('(');
+                    paren_str.push(' ');
+                }
             } else if matches!(last_char, '(' | '.') && matches!(char, '+' | '×' | '÷') {
+
             } else {
                 base_expression.push(char);
                 *points = false;

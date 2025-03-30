@@ -37,10 +37,10 @@ _This step requires you to have rustup installed on your system. If you don't ha
 - [ ] Make source code even more modular
 - [ ] Make it readable (less messy)
 - [ ] ~~More easter eggs?~~
-- [ ] (Known Issue) Starting an equation with `(-)` operator doesn't work at all.
+- [x] (Known Issue) Starting an equation with `(-)` operator doesn't work at all.
 - [x] Approximation when number is too large to display
-- [x] Some (valid) results are way too precised.
-- [ ] (Known Issue) Copy to Clipboard, never works
-- [ ] Reduce computations for explicit alignments on x-axis
+- [x] (Known Issue) Some (valid) results are way too precised.
+- [x] (Known Issue) Copy to Clipboard, never works
+- [x] Reduce computations for explicit alignments on x-axis
 - [ ] ~~(Maybe) Add more operations~~
 - [ ] ~~(Maybe) Add other mathematical functions...~~
