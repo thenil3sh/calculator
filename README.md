@@ -36,9 +36,9 @@ _This step requires you to have rustup installed on your system. If you don't ha
 - [x] Pressing (=) messes up with layout...
 - [ ] Make source code even more modular
 - [ ] Make it readable (less messy)
-- [ ] More easter eggs?
+- [ ] ~~More easter eggs?~~
 - [ ] (Known Issue) Starting an equation with `(-)` operator doesn't work at all.
-- [ ] (Known Issue) Program starts miscalculating if number is too large or too precised
-- [ ] (Known Issue) Some (valid) results are way too precised.
-- [ ] (Maybe) Add more operations
-- [ ] (Maybe) Add other mathematical functions...
+- [x] Approximation when number is too large to display
+- [x] Some (valid) results are way too precised.
+- [ ] ~~(Maybe) Add more operations~~
+- [ ] ~~(Maybe) Add other mathematical functions...~~

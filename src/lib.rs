@@ -28,9 +28,9 @@ pub enum CalculationState {
 }
 
 impl CalculationState {
-    pub fn to_str(&self) -> String {
+    pub fn to_string(&self) -> String {
         match self {
-            Self::Success(num) => num.to_string(),
+            Self::Success(num) => num.approximate().to_string(),
             //Self::Imaginary => String::from("Not real"),
             Self::Infinite => String::from("Infinite"),
             Self::Indeterminate => String::from("Indeterminate"),
@@ -359,3 +359,28 @@ impl NotationType {
 //         NotationType::Postfix(oreo)
 //     }
 // }
+
+trait Result {
+    fn approximate(&self) -> String;
+}
+
+impl Result for f64 {
+    fn approximate(&self) -> String {
+        // let string = self.to_string();
+        // let fp_pos = match string.find('.') {
+        //     Some(x) => {
+        //         x
+        //     },
+        //     None => self.to_string().len(),
+        // };
+        // let formatting = format!(":{}.{}e", fp_pos, string.len() - fp_pos);
+        let f64_string = format!("{}", self);
+        if f64_string.len() > 14 {
+            let string = format!("{:1.9e}", self);
+            let e_pos = string.find('e').unwrap();
+            format!("{}{}", string[..e_pos].trim_end_matches('0'), &string[e_pos..])
+        } else {
+            f64_string
+        }
+    }
+}

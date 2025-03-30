@@ -1,5 +1,4 @@
-mod mylib;
-use mylib::Notation;
+use my_lib::Notation;
 use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -150,7 +149,7 @@ pub fn main() {
         app.global::<elements>()
             .set_text(SharedString::from(&*base_expression));
         app.global::<elements>().set_result(SharedString::from(
-            base_expression.to_infix().solve().to_str(),
+            base_expression.to_infix().solve().to_string()
         ));
         println!("{}", base_expression.to_infix());
         app.global::<elements>()
