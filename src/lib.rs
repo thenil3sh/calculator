@@ -1,6 +1,13 @@
-use std::collections::LinkedList;
+use std::{
+    collections::LinkedList,
+    fmt::{Display, Formatter},
+    fmt
+};
 
-#[derive(Debug, Copy, Clone)]
+
+// Implemented Operators, Parentheses and Expression with their Respected enums
+// This makes the further calculations easier to carry
+#[derive(Copy, Clone)]
 pub enum Operator {
     Add,
     Subtract,
@@ -9,40 +16,13 @@ pub enum Operator {
     RaisedTo,
 }
 
-#[derive(Debug, Copy, Clone)]
-
+#[derive(Copy, Clone)]
 pub enum Paren {
     Left,
     Right,
 }
 
-pub enum CalculationState {
-    Success(f64),
-    //Imaginary,
-    Infinite,
-    Indeterminate,
-    Heart,
-    Hate,
-    Invalid,
-    NotFound,
-}
-
-impl CalculationState {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Success(num) => num.approximate().to_string(),
-            //Self::Imaginary => String::from("Not real"),
-            Self::Infinite => String::from("Infinite"),
-            Self::Indeterminate => String::from("Indeterminate"),
-            Self::Hate => String::from(":( "),
-            Self::Heart => String::from("❤ "),
-            Self::Invalid => String::from("Format Error"),
-            Self::NotFound => String::from("Not found"),
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum Expression<T: Into<f64>> {
     Number(T),
     Parenthesis(Paren),
@@ -50,47 +30,81 @@ pub enum Expression<T: Into<f64>> {
     // Something,
 }
 
-#[derive(Debug)]
-pub enum NotationType {
-    Infix(Vec<Expression<f64>>),
+// Enum to specify the sort of result an expression generates
+pub enum ResultState {
+    Success(f64),
+    Infinite,
+    Indeterminate,
+    Invalid,
+    //
+    Heart,
+    Hate,
+    NotFound,
+    //
 }
-impl fmt::Display for NotationType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut string = String::from("[");
-        let x = self.unwrap();
-        for i in x {
-            string.push(' ');
-            match i {
-                Number(num) => string.push_str(&format!("{num}")),
-                Op(operator) => string.push(match operator {
-                    Add => '+',
-                    Subtract => '-',
-                    Multiply => '×',
-                    Divide => '÷',
-                    RaisedTo => '^',
-                }),
-                Parenthesis(paren) => string.push(match paren {
-                    Left => '(',
-                    Right => ')',
-                }),
-                // Something => panic!("bruh"),
+
+// This implements to_string() method (which is was I wanted) 
+// + allows Result to be used in other cases too
+impl Display for ResultState {
+    fn fmt(&self, f : &mut Formatter) -> fmt::Result {
+        write!(f, "{}",
+            match self {
+                Self::Success(num) => num.approximate().to_string(),
+                Self::Infinite => String::from("Infinite"),
+                Self::Indeterminate => String::from("Indeterminate"),
+                Self::Hate => String::from(":( "),
+                Self::Heart => String::from("❤ "),
+                Self::Invalid => String::from("Format Error"),
+                Self::NotFound => String::from("Not found"),
             }
-            string.push(',');
-        }
-        string.push(']');
-        write!(f, "{}", string)
+        )
     }
 }
 
-use core::fmt;
+// Maybe useless but denotes the type of expression
+pub enum NotationType {
+    Infix(Vec<Expression<f64>>),
+}
 
+// Again, maybe useless but y'can use it to print the infix for debugging purpose
+// impl fmt::Display for NotationType {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         let mut string = String::from("[");
+//         let x = self.unwrap();
+//         for i in x {
+//             string.push(' ');
+//             match i {
+//                 Number(num) => string.push_str(&format!("{num}")),
+//                 Op(operator) => string.push(match operator {
+//                     Add => '+',
+//                     Subtract => '-',
+//                     Multiply => '×',
+//                     Divide => '÷',
+//                     RaisedTo => '^',
+//                 }),
+//                 Parenthesis(paren) => string.push(match paren {
+//                     Left => '(',
+//                     Right => ')',
+//                 }),
+//                 // Something => panic!("bruh"),
+//             }
+//             string.push(',');
+//         }
+//         string.push(']');
+//         write!(f, "{}", string)
+//     }
+// }
+
+// Re Export enum variants for cleaner expression
 use Expression::{Number, Op, Parenthesis};
 use Operator::{Add, Divide, Multiply, RaisedTo, Subtract};
 use Paren::{Left, Right};
 
+// Trait to implement a method to convert a type to String
 pub trait Notation {
     fn to_infix(&self) -> NotationType;
 }
+
 
 impl Notation for String {
     fn to_infix(&self) -> NotationType {
@@ -188,27 +202,27 @@ impl Operator {
     }
 }
 
-fn solve_binary_expression(left: f64, operator: Operator, right: f64) -> CalculationState {
+fn solve_binary_expression(left: f64, operator: Operator, right: f64) -> ResultState {
     match operator {
-        Add => CalculationState::Success(left + right),
-        Subtract => CalculationState::Success(left - right),
-        Multiply => CalculationState::Success(left * right),
+        Add => ResultState::Success(left + right),
+        Subtract => ResultState::Success(left - right),
+        Multiply => ResultState::Success(left * right),
         Divide => {
             if right == 0.0 && left == 0.0 {
-                CalculationState::Indeterminate
+                ResultState::Indeterminate
             } else if right == 0.0 {
-                CalculationState::Infinite
+                ResultState::Infinite
             } else {
-                CalculationState::Success(left / right)
+                ResultState::Success(left / right)
             }
         }
         RaisedTo => {
             if left == 0.0 && right == 0.0 {
-                CalculationState::Indeterminate
+                ResultState::Indeterminate
             } else if right == 0.0 {
-                CalculationState::Success(1.0)
+                ResultState::Success(1.0)
             } else {
-                CalculationState::Success(left.powf(right))
+                ResultState::Success(left.powf(right))
             }
         }
     }
@@ -222,8 +236,8 @@ impl NotationType {
         }
     }
 
-    pub fn solve(&self) -> CalculationState {
-        let mut state = CalculationState::Success(0.0);
+    pub fn solve(&self) -> ResultState {
+        let mut state = ResultState::Success(0.0);
         let expression_vec = self.unwrap();
         let mut op_list: LinkedList<Expression<f64>> = LinkedList::new();
         let mut p_list: LinkedList<f64> = LinkedList::new();
@@ -242,16 +256,16 @@ impl NotationType {
                             Op(operator) => {
                                 let right_operand = p_list.pop_front().unwrap_or_else(|| {
                                         eprintln!("\x1b[31mCRITICAL ERROR : \x1b[33mSolution list is empty for Right operand\x1b[0m");
-                                        state = CalculationState::Invalid;
+                                        state = ResultState::Invalid;
                                         0.0
                                     });
                                 let left_operand = p_list.pop_front().unwrap_or_else(||{
                                         eprintln!("\x1b[31mCRITICAL ERROR : \x1b[33mSolution list is empty for Left operand\x1b[0m");
-                                        state = CalculationState::Invalid;
+                                        state = ResultState::Invalid;
                                         0.0
                                     });
 
-                                if let CalculationState::Invalid = state {
+                                if let ResultState::Invalid = state {
                                     return state;
                                 } else {
                                     match solve_binary_expression(
@@ -259,9 +273,9 @@ impl NotationType {
                                         operator,
                                         right_operand,
                                     ) {
-                                        CalculationState::Success(num) => {
+                                        ResultState::Success(num) => {
                                             p_list.push_front(num);
-                                            state = CalculationState::Success(num);
+                                            state = ResultState::Success(num);
                                         }
                                         x => {
                                             state = x;
@@ -283,23 +297,23 @@ impl NotationType {
                             } else {
                                 let right_operand = p_list.pop_front().unwrap_or_else(|| {
                                         eprintln!("\x1b[31mCRITICAL ERROR : \x1b[33mSolution list is empty for Right operand\x1b[0m");
-                                        state = CalculationState::Invalid;
+                                        state = ResultState::Invalid;
                                         0.0
                                     });
                                 let left_operand = p_list.pop_front().unwrap_or_else( ||{
                                         eprintln!("\x1b[31mCRITICAL ERROR : \x1b[33mSolution list is empty for Right operand\x1b[0m");
-                                        state = CalculationState::Invalid;
+                                        state = ResultState::Invalid;
                                         0.0
                                     });
 
-                                if let CalculationState::Invalid = state {
+                                if let ResultState::Invalid = state {
                                     return state;
                                 } else {
                                     match solve_binary_expression(left_operand, *op, right_operand)
                                     {
-                                        CalculationState::Success(num) => {
+                                        ResultState::Success(num) => {
                                             p_list.push_front(num);
-                                            state = CalculationState::Success(num);
+                                            state = ResultState::Success(num);
                                         }
                                         x => {
                                             state = x;
@@ -326,20 +340,20 @@ impl NotationType {
 
         println!("\x1b[33mp_list has : {} elements \x1b[0m", p_list.len());
         match state {
-            CalculationState::Success(_num) => {
+            ResultState::Success(_num) => {
                 let value = p_list.pop_front().unwrap_or(0.0);
                 if num_count == 1 {
                     if value == 143.0 {
-                        CalculationState::Heart
+                        ResultState::Heart
                     } else if value == 182.0 {
-                        CalculationState::Hate
+                        ResultState::Hate
                     } else if value == 404.0 {
-                        CalculationState::NotFound
+                        ResultState::NotFound
                     } else {
-                        CalculationState::Success(value)
+                        ResultState::Success(value)
                     }
                 } else {
-                    CalculationState::Success(value)
+                    ResultState::Success(value)
                 }
             }
             x => x,
@@ -374,9 +388,4 @@ impl Result for f64 {
             self.to_string()
         }
     }
-}
-
-#[cfg(target_os="linux")]
-fn copy(str : String) {
-    
 }
