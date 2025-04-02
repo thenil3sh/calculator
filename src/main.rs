@@ -219,7 +219,8 @@ fn main() {
         ));
 
         // Just a debugging output of how and expression is stored
-        // println!("{}", base_expression.to_infix());
+        println!("{base_expression}");
+        println!("{}", base_expression.to_infix());
 
         // Push the parenthesis string to ui
         app.global::<elements>()

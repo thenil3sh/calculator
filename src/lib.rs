@@ -67,33 +67,33 @@ pub enum NotationType {
 }
 
 // Again, maybe useless but y'can use it to print the infix for debugging purpose
-// impl fmt::Display for NotationType {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         let mut string = String::from("[");
-//         let x = self.unwrap();
-//         for i in x {
-//             string.push(' ');
-//             match i {
-//                 Number(num) => string.push_str(&format!("{num}")),
-//                 Op(operator) => string.push(match operator {
-//                     Add => '+',
-//                     Subtract => '-',
-//                     Multiply => '×',
-//                     Divide => '÷',
-//                     RaisedTo => '^',
-//                 }),
-//                 Parenthesis(paren) => string.push(match paren {
-//                     Left => '(',
-//                     Right => ')',
-//                 }),
-//                 // Something => panic!("bruh"),
-//             }
-//             string.push(',');
-//         }
-//         string.push(']');
-//         write!(f, "{}", string)
-//     }
-// }
+impl fmt::Display for NotationType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut string = String::from("[");
+        let x = self.unwrap();
+        for i in x {
+            string.push(' ');
+            match i {
+                Number(num) => string.push_str(&format!("{num}")),
+                Op(operator) => string.push(match operator {
+                    Add => '+',
+                    Subtract => '-',
+                    Multiply => '×',
+                    Divide => '÷',
+                    RaisedTo => '^',
+                }),
+                Parenthesis(paren) => string.push(match paren {
+                    Left => '(',
+                    Right => ')',
+                }),
+                // Something => panic!("bruh"),
+            }
+            string.push(',');
+        }
+        string.push(']');
+        write!(f, "{}", string)
+    }
+}
 
 // Re Export enum variants for cleaner expression
 use Expression::{Number, Op, Parenthesis};
@@ -106,36 +106,50 @@ pub trait Notation {
 }
 
 
+// Yeilds an Infix Notation out of String
+// However, it expects the String to store expression in desirable format
+// 
 impl Notation for String {
+    
     fn to_infix(&self) -> NotationType {
-        let mut char_set = String::from(self);
-        char_set.push(' ');
-        let char_set = char_set.chars();
+        
+        // the actual vector we, want our expression to parse in
         let mut expression: Vec<Expression<f64>> = vec![Parenthesis(Left)];
 
-        let mut paren_count: u16 = 1;
+        // More prerequisities we may need
+        let mut unclosed_paren_count: u16 = 1;
         let mut num = String::new();
         let mut last_i = '_';
 
-        for i in char_set {
-            //let peri = i != ' ' && i != '\'';
+        // Iterating over base_expression to develop an infix_notation vector
+        for i in self.chars() {
+
+            // push numric or floating point character to `num` string
             if i.is_numeric() || i == '.' {
                 num.push(i);
+
+            // we're ready to parse a `num` into `f64` if we don't have a numeric character
             } else if last_i.is_numeric() && !num.is_empty() {
-                expression.push(Number(num.parse().unwrap()));
+                expression.push(Number(num.parse::<f64>().unwrap()));
                 num.clear();
-            } else if last_i == '(' && i == '-' {
+            } 
+
+            // pushes unrary minus operator to num string if any expression starts 
+            // with the same operator
+            else if last_i == '(' && i == '-' {
                 num.push(i);
                 continue;
-            }
+            } 
+            
+            // if we have any other characters, the operators
             if !i.is_numeric() {
                 expression.push(match i {
                     '(' => {
-                        paren_count += 1;
+                        unclosed_paren_count += 1;
                         Parenthesis(Left)
                     }
                     ')' => {
-                        paren_count -= 1;
+                        unclosed_paren_count -= 1;
                         Parenthesis(Right)
                     }
                     '+' => Op(Add),
@@ -145,12 +159,23 @@ impl Notation for String {
                     '^' => Op(RaisedTo),
                     ' ' => continue,
                     '.' => continue,
-                    _ => panic!("Bro wtf"),
+                    _ => panic!("No way this can happen"),
                 });
             }
+
             last_i = i;
         }
 
+        // parse and push the `num` string if not done yet
+        if !num.is_empty() {
+            expression.push(Number(num.parse::<f64>().unwrap()));
+            num.clear();
+        }
+
+
+        // Remove unnecessary Operators and Opening Parentheses
+        // This helps us to calculate the expressions that arn't completed yet
+        // However this change only appears to us, user cannot see it
         loop {
             if let Op(_) = expression
                 .last()
@@ -162,24 +187,42 @@ impl Notation for String {
                 .unwrap_or(&Expression::Number(0.0))
             {
                 expression.pop();
-                paren_count -= 1;
+                unclosed_paren_count -= 1;
             } else {
                 break;
             }
         }
-        while paren_count > 0 {
+
+        // Push closing parentheses to complete the expression
+        // Again, this also helps in calculating expressions that arn't completed yet
+        while unclosed_paren_count > 0 {
             expression.push(Parenthesis(Right));
-            paren_count -= 1;
+            unclosed_paren_count -= 1;
         }
+
+        // And finally, we return our infix expression
         NotationType::Infix(expression)
     }
 }
 
-// trait ChangeNotation {
-//     // fn to_infix(&self) -> NotationType::Infix();
-//     // fn to_prefix(&self) -> NotationType::Prefix();
-//     fn to_postfix(&self) -> NotationType;
-// }
+#[cfg(test)]
+mod infix_test {
+    use super::Notation;
+
+    #[test]
+    fn normal_expression(){
+        let expression_a = "2+3-4".to_string();
+        let expression_b = "8×(5-2".to_string();
+
+        assert_eq!(expression_a.to_infix().to_string(), 
+                 "[ (, 2, +, 3, -, 4, ),]".to_string());
+
+        eprintln!("{}", expression_b.to_infix().to_string());
+        assert_eq!(expression_b.to_infix().to_string(),
+                "[ (, 8, ×, (, 5, -, 2, ), ),]".to_string())
+    }
+}
+
 
 impl Operator {
     fn has_higher_precedence(&self, compare_with: &Operator) -> bool {
@@ -202,6 +245,7 @@ impl Operator {
     }
 }
 
+
 fn solve_binary_expression(left: f64, operator: Operator, right: f64) -> ResultState {
     match operator {
         Add => ResultState::Success(left + right),
@@ -216,6 +260,7 @@ fn solve_binary_expression(left: f64, operator: Operator, right: f64) -> ResultS
                 ResultState::Success(left / right)
             }
         }
+        // Using powers is implemented but, isn't available for ui level yet
         RaisedTo => {
             if left == 0.0 && right == 0.0 {
                 ResultState::Indeterminate
@@ -228,19 +273,23 @@ fn solve_binary_expression(left: f64, operator: Operator, right: f64) -> ResultS
     }
 }
 
+// Now this should make sense, why wrapping Vec<Expression> was a thing
 impl NotationType {
+
     fn unwrap(&self) -> &Vec<Expression<f64>> {
         match self {
             NotationType::Infix(x) => x,
-            // NotationType::Postfix(x) => x,
         }
     }
 
+    // Solves the infix expression by using Postfix expression method
     pub fn solve(&self) -> ResultState {
         let mut state = ResultState::Success(0.0);
         let expression_vec = self.unwrap();
         let mut op_list: LinkedList<Expression<f64>> = LinkedList::new();
         let mut p_list: LinkedList<f64> = LinkedList::new();
+
+        // This is useless, until you realise why... 
         let mut num_count: u8 = 0;
         'solving_expression: for i in expression_vec {
             match i {
@@ -338,7 +387,9 @@ impl NotationType {
             }
         }
 
-        println!("\x1b[33mp_list has : {} elements \x1b[0m", p_list.len());
+        // println!("\x1b[33mp_list has : {} elements \x1b[0m", p_list.len());
+
+        // When we're done with calculation, here, a result state is thrown back to ui
         match state {
             ResultState::Success(_num) => {
                 let value = p_list.pop_front().unwrap_or(0.0);
@@ -360,25 +411,17 @@ impl NotationType {
         }
     }
 }
-// impl ChangeNotation for NotationType::Infix {
-//     fn to_postfix(&self) -> NotationType::Postfix {
-//         let infix_vec = if let NotationType::Infix(x) = self {
-//             x
-//         };
 
-//         for i in infix_vec {
-//             match i
-//         }
 
-//         NotationType::Postfix(oreo)
-//     }
-// }
-
+// again, maybe a meaningless trait for approximating large numbers
 trait Result {
     fn approximate(&self) -> String;
 }
 
 impl Result for f64 {
+    
+    // If a floating point number is too large to display, 
+    // The notation is changed to Scientific
     fn approximate(&self) -> String {
         if self.to_string().len() >= 12 {
             let string = format!("{:1.9e}", self);
