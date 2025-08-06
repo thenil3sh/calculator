@@ -4,7 +4,9 @@ mod my_lib;
 use my_lib::Notation;
 use slint::{self, SharedString};
 use std::cell::RefCell;
+use std::io::copy;
 use std::rc::Rc;
+use wasm_bindgen::JsValue;
 
 use dark_light::Mode;
 slint::include_modules!();
@@ -34,8 +36,7 @@ impl TypeOfchar for char {
     }
 }
 
-#[cfg_attr(target_arch = "wasm32",
-           wasm_bindgen::prelude::wasm_bindgen(start))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
 fn main() {
     let window = AppWindow::new().unwrap();
     let oreo = Rc::new(RefCell::new(String::new()));
@@ -116,7 +117,6 @@ fn main() {
                     paren_str.push(' ');
                 }
             } else if matches!(last_char, '(' | '.') && matches!(char, '+' | '×' | '÷') {
-
             } else {
                 base_expression.push(char);
                 *points = false;
@@ -174,24 +174,30 @@ fn main() {
             .set_unclosed_paren(*paren_count > 0);
     });
 
-    // let copy = window.as_weak();
     window.global::<elements>().on_copy(move |string| {
-
-        // If you want to compile it for wayland // // // // // //
-        // use wl_clipboard_rs::copy::{MimeType, Options, Source};
-
-        // let opts = Options::new();
-        // opts.copy(
-        //     Source::Bytes(string.to_string().into_bytes().into()),
-        //     MimeType::Autodetect,
-        // ).unwrap();
-
-        // For Compiling it on Other Platforms // // // /// // // //
-        let mut ctx = ClipboardContext::new().unwrap();
-        ctx.set_contents(string.to_string()).unwrap();
+        wasm_future::spawn_local(async move {
+            match copy_to_clipboard(&string).await {
+                Err(err) => websys::console::error_1(&err),
+                Ok(()) => websys::console::log(&websys::js_sys::Array::from(&JsValue::from_str(
+                    "success!!",
+                ))),
+            }
+        });
+        // let mut ctx = ClipboardContext::new().unwrap();
+        // ctx.set_contents(string.to_string()).unwrap();
     });
 
     window.run().unwrap();
 }
 
+async fn copy_to_clipboard(text: &str) -> Result<(), wasm_bindgen::JsValue> {
+    let clippy = websys::window()
+        .expect("Failed to initiate websys window")
+        .navigator()
+        .clipboard();
 
+    let promise = clippy.write_text(text);
+    wasm_future::JsFuture::from(promise).await?;
+
+    Ok(())
+}

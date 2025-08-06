@@ -8,6 +8,9 @@ rust-version = "1.85.0"
 clipboard = "0.5.0"
 dark-light = "1.1.1"
 slint = "1.10.0"
+wasm_future = { version = "0.4.50", package = "wasm-bindgen-futures" }
+websys = { version = "0.3.77", package = "web-sys", features = ["Clipboard", "Window", "Navigator", "console"] }
+wasm-bindgen = { version = "0.2" }
 
 [build-dependencies]
 slint-build = "1.10.0"
@@ -17,7 +20,6 @@ slint-build = "1.10.0"
 opt-level = 3
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = { version = "0.2" }
 getrandom = { version = "0.2.2", features = ["js"] }
 
 [lib]
