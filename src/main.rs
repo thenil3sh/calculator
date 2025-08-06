@@ -1,6 +1,6 @@
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
-use my_lib::Notation;
+use calc::notation::r#trait::*;
 use slint::{self, SharedString};
 use std::cell::RefCell;
 use std::rc::Rc;

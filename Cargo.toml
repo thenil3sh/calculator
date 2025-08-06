@@ -20,9 +20,6 @@ opt-level = 3
 wasm-bindgen = { version = "0.2" }
 getrandom = { version = "0.2.2", features = ["js"] }
 
-[lib]
-name = "my_lib"
-path = "src/lib.rs"
 
 
 [target.aarch64-unknown-linux-gnu]
