@@ -37,12 +37,21 @@ h5 {
 }
 
 canvas {
+    margin : 50px 0px;
+    transition: all ease-out 250ms;
     margin: 0;
-    padding: 0;
+    padding: 20px 0;
+    box-shadow: 0px 0px 0 var(--text-color);
+    border : 1px solid rgba(0,0,0,0);
 }
 
 canvas:focus {
+    border : 1px solid var(--text-color);
     outline : none;
+}
+
+canvas:hover {
+    box-shadow: 5px 5px 0 var(--text-color);
 }
 
 #nav {
@@ -57,15 +66,25 @@ canvas:focus {
 }
 
 #nav a {
+    transition : all 250ms ease-out;
     margin : 0;
     color : var(--text-color);
     font-family: 'JetBrains Mono';
     font-weight : 900;
     text-decoration: none;
+    box-shadow : 0px 0px 0px var(--text-color);
+    padding : 2px 3px;
     
 }
 
+#nav a:hover {
+    filter: brightness(120%);
+    border : 1px solid var(--text-color);
+    box-shadow: 7px 7px 0px var(--text-color);
+}
+
 #nav a img {
+    transition: all 250ms ease-out;
     height : 38px;
     filter : brightness(var(--brighness))
 }
