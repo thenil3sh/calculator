@@ -42,7 +42,7 @@ canvas {
 }
 
 canvas:focus {
-    /* outline : none; */
+    outline : none;
 }
 
 #nav {
