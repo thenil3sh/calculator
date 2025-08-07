@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css?family=JetBrains%20Mono");
+
+:root {
+    --bg: #fbf1c7;
+    --text-color: #282828;
+    --brighness : 15%;
+    --hover-brightness : 50%;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #282828;
+        --text-color: #ebdbb2;
+        --brightness : 100%;
+        --hover-brightness : 130%;
+    }
+}
+
+body {
+    height: 100vh;
+    font-family: 'JetBrains Mono';
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: var(--bg);
+    font-family: Arial, sans-serif;
+}
+
+h3,
+h2,
+h5 {
+    font-family: 'JetBrains Mono';
+    margin: 0;
+    color : var(--text-color)
+}
+
+canvas {
+    margin: 0;
+    padding: 0;
+}
+
+canvas:focus {
+    /* outline : none; */
+}
+
+#nav {
+    opacity: 0.8;
+    display : flex;
+    align-items: center;
+    gap : 20px;
+    position: absolute;
+    top : 5px;
+    align-self: flex-end;
+    padding : 10px 20px;
+}
+
+#nav a {
+    margin : 0;
+    color : var(--text-color);
+    font-family: 'JetBrains Mono';
+    font-weight : 900;
+    text-decoration: none;
+    
+}
+
+#nav a img {
+    height : 38px;
+    filter : brightness(var(--brighness))
+}
+
+#nav a img:hover {
+    filter : brightness(var(--hover-brightness))
+}

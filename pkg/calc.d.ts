@@ -9,21 +9,21 @@ export interface InitOutput {
   readonly main: () => void;
   readonly slint_qt_get_widget: (a: number) => number;
   readonly slint_mock_elapsed_time: (a: bigint) => void;
-  readonly slint_get_mocked_time: () => bigint;
   readonly slint_send_mouse_click: (a: number, b: number, c: number) => void;
   readonly slint_send_keyboard_char: (a: number, b: number, c: number) => void;
   readonly send_keyboard_string_sequence: (a: number, b: number) => void;
+  readonly slint_get_mocked_time: () => bigint;
   readonly __externref_table_alloc: () => number;
   readonly __wbindgen_export_1: WebAssembly.Table;
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_5: WebAssembly.Table;
-  readonly closure461_externref_shim: (a: number, b: number, c: any) => void;
-  readonly closure976_externref_shim: (a: number, b: number, c: any) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h2019b4025f2551c5: (a: number, b: number) => void;
-  readonly closure981_externref_shim: (a: number, b: number, c: any, d: any) => void;
-  readonly closure1165_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure414_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure1787_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure1813_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure1816_externref_shim: (a: number, b: number, c: any, d: any) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h95d3a2608f21ac54: (a: number, b: number) => void;
   readonly __wbindgen_start: () => void;
 }
 

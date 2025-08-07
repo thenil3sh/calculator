@@ -9,7 +9,12 @@ clipboard = "0.5.0"
 dark-light = "1.1.1"
 slint = "1.10.0"
 wasm_future = { version = "0.4.50", package = "wasm-bindgen-futures" }
-websys = { version = "0.3.77", package = "web-sys", features = ["Clipboard", "Window", "Navigator", "console"] }
+websys = { version = "0.3.77", package = "web-sys", features = [
+    "Clipboard",
+    "Window",
+    "Navigator",
+    "console",
+] }
 wasm-bindgen = { version = "0.2" }
 
 [build-dependencies]
@@ -17,7 +22,13 @@ slint-build = "1.10.0"
 
 
 [profile.release]
-opt-level = 3
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+debug = false
+overflow-checks = false
+panic = "abort"
+# strip = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2.2", features = ["js"] }
@@ -25,4 +36,3 @@ getrandom = { version = "0.2.2", features = ["js"] }
 [lib]
 path = "src/main.rs"
 crate-type = ["cdylib"]
-
