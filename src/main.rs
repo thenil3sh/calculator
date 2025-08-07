@@ -1,5 +1,3 @@
-use clipboard::ClipboardContext;
-use clipboard::ClipboardProvider;
 use calc::notation::r#trait::*;
 use slint::{self, SharedString};
 use std::cell::RefCell;
@@ -10,7 +8,6 @@ slint::include_modules!();
 
 fn remove_first_paren(s: &mut String) -> String {
     let mut rev: String = s.chars().rev().collect();
-    println!("{rev:?}");
     if let Some(pos) = rev.find('(') {
         rev.remove(pos);
         rev = rev.chars().rev().collect();
@@ -219,8 +216,12 @@ fn main() {
         ));
 
         // Just a debugging output of how and expression is stored
-        println!("{base_expression}");
-        println!("{}", base_expression.to_infix());
+        #[cfg(debug_assertions)]
+        {
+            println!("{base_expression}");
+            println!("{}", base_expression.to_infix());
+        }
+    
 
         // Push the parenthesis string to ui
         app.global::<elements>()
@@ -236,15 +237,11 @@ fn main() {
             .set_unclosed_paren(*paren_count > 0);
     });
 
-
     // Definition for elements.copy() callback 
     window.global::<elements>().on_copy(move |string| {
-
-        // Sets up clipboard context, then passes a string to clipboard
-        let mut ctx = ClipboardContext::new().unwrap();
-        ctx.set_contents(string.to_string()).unwrap();
-        // it works cross platform but, isn't yet implemented for wayland systems and wasm :(
+        calc::copy_to_clipboard(string);
     });
 
     window.run().unwrap();
 }
+

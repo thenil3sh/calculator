@@ -10,18 +10,22 @@ dark-light = "1.1.1"
 slint = "1.10.0"
 
 [build-dependencies]
-slint-build = "1.10.0"
+slint-build = "1.12.1"
 
 
 [profile.release]
-opt-level = 3
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+debug = false
+overflow-checks = false
+panic = "abort"
+strip = true
+
+[features]
+wayland = []
+
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = { version = "0.2" }
 getrandom = { version = "0.2.2", features = ["js"] }
-
-
-
-[target.aarch64-unknown-linux-gnu]
-linker = "aarch64-linux-gnu-gcc"
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]

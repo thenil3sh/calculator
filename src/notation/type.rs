@@ -153,7 +153,10 @@ impl NotationType {
             }
         }
 
+        #[cfg(debug_assertions)] // Again, for debugging purposes /////////
         println!("\x1b[33mp_list has : {} elements \x1b[0m", p_list.len());
+
+
         match state {
             CalculationState::Success(_num) => {
                 let value = p_list.pop_front().unwrap_or(0.0);
