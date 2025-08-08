@@ -36,22 +36,30 @@ h5 {
     color : var(--text-color)
 }
 
+#main {
+    padding : 15px 20px;
+    border : 1px solid var(--text-color);
+    box-shadow: 5px 5px 0 #a89884aa;
+    text-align: justify;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 canvas {
     margin : 50px 0px;
     transition: all ease-out 250ms;
     margin: 0;
     padding: 20px 0;
-    box-shadow: 0px 0px 0 var(--text-color);
     border : 1px solid rgba(0,0,0,0);
 }
 
 canvas:focus {
-    border : 1px solid var(--text-color);
+    /* border : 1px solid var(--text-color); */
     outline : none;
 }
 
 canvas:hover {
-    box-shadow: 5px 5px 0 var(--text-color);
 }
 
 #nav {
@@ -73,7 +81,7 @@ canvas:hover {
     font-weight : 900;
     text-decoration: none;
     box-shadow : 0px 0px 0px var(--text-color);
-    padding : 2px 3px;
+    padding : 10px 10px;
     
 }
 
