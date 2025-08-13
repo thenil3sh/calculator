@@ -42,7 +42,7 @@ h5 {
     box-shadow: 5px 5px 0 #a89884aa;
     text-align: justify;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: center;
 }
 
@@ -94,9 +94,38 @@ canvas:hover {
 #nav a img {
     transition: all 250ms ease-out;
     height : 38px;
-    filter : brightness(var(--brighness))
+    filter : brightness(var(--hover-brightness))
 }
 
 #nav a img:hover {
     filter : brightness(var(--hover-brightness))
+}
+
+#textarea {
+    text-align: center;
+}
+
+@media screen and (max-width : 910px) {
+    #main {
+        border : none;
+        box-shadow : none;
+        width : 100vw;
+        line-height : 1.2;
+        flex-direction: column;
+        padding : 0;
+    }
+    #nav {
+        position : static;
+        top : 0;
+        margin : 0;
+        align-self: center;
+        padding : 0;
+    }
+    body {
+        display : flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        justify-content: center;
+        gap : 0;
+    }
 }
