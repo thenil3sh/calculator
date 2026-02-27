@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use calc::{handle, theme, AppWindow};
 use slint::ComponentHandle;
 
