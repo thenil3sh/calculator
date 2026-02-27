@@ -84,10 +84,10 @@ component Button {
 
         drop-shadow-color: self.background.darker(theme.dark ? -10% : 10%);
         background: ta.pressed ? bg-color.darker(theme.dark ? -15% : 15%) : ta.has-hover ? bg-color.darker(theme.dark ? -40% : 20%) : bg-color.darker(theme.dark ? -20% : 0%);
-        border-radius: ta.pressed ? 8px : 20px;
-        border-width: ta.pressed ? 3px : 1px;
+        border-radius: root.width / 1px / 200 * (ta.pressed ? 8px : 30px);
+        border-width: ta.pressed ? 4px : 1px;
         border-color: ta.pressed ? self.background.darker(theme.dark ? -40% : 40%) : self.background.darker(theme.dark ? -22% : 22%);
-        animate background, border_radius { duration: 150ms; }
+        animate background, border-radius { duration: 150ms; }
         animate border-width {
             delay: 500ms;
             duration: 2000ms;
@@ -128,14 +128,17 @@ export component AppWindow inherits Window {
     property <duration> duration;
     in-out property <length> scroll_offset_x;
     // out property <length> default_scroll_offset_x: root.width - expression.width - 20px;
-    // min-height: 400px;
-    // min-width: 300px;
-    // max-width: 600px;
-    // max-height: 800px;
-    // preferred-height: 500px;
-    // preferred-width: 500px;
-    height: 600px;
-    width: 400px;
+    min-height: 400px;
+    min-width: 300px;
+    max-width: 1920px;
+    max-height: 1200px;
+    preferred-height: 500px;
+    preferred-width: 500px;
+
+    // height: 600px;
+    // width: 400px;
+
+
     background: theme.dark ? #282828 : #fbf1c7;
     VerticalLayout {
         alignment: end;
@@ -147,8 +150,7 @@ export component AppWindow inherits Window {
             height: root.height * 40%;
             // Rectangle {
                 expression := Text {
-                x: root.width - self.text.character-count * (elements.result_state ? 18px : 24px) - 20px
-                - scroll_offset_x;
+                x: root.width - self.text.character-count * (elements.result_state ? 18px : 24px) - 20px - scroll_offset_x;
                 y: rect.height - self.height - Result.height;
                 text: elements.text;
                 horizontal-alignment: right;
@@ -161,9 +163,9 @@ export component AppWindow inherits Window {
             }
 
             parenthesus := Text {
-                x: root.width - 20px - scroll_offset_x - self.text.character-count * (elements.result_state ? 18px : 24px);
+                x: root.width + 4px - scroll_offset_x - self.text.character-count * (elements.result_state ? 18px : 24px);
                 y: rect.height - self.height - Result.height;
-                text: elements.paren;
+                text: elements.paren + "|";
                 horizontal-alignment: right;
                 font-size: 40px;
                 font-family: "JetBrains Mono";
@@ -205,8 +207,8 @@ export component AppWindow inherits Window {
                 width: root.width;
                 scroll-event(event) => {
                     new_scroll_offset = scroll_offset_x + event.delta-y / 2;
-                    
-                    
+
+
                     // Clamp scroll_offset_x to ensure it stays within bounds
                     if (root.width > expression.width) {
                         // If the text fits within the window, keep it aligned to the right
@@ -229,14 +231,14 @@ export component AppWindow inherits Window {
                         copy_hint.color = #b8bb26;
                         copy_hint.hint = "✱ Copied! ✱";
                         copy_timer.running = true;
-    
+
                         elements.copy(elements.result);
                     }
                 }
             }
         }
-        
-            // x : root.width;
+
+        // x : root.width;
 
         states [
             result_zoom when elements.result_state: {
@@ -256,7 +258,7 @@ export component AppWindow inherits Window {
             }
         ]
 
-                // states [
+        // states [
                 //     zoomed_result when elements.result_state: {
                 //         text.font-size: 30px;
                 //         result.font-size: 40px;
@@ -386,10 +388,15 @@ export component AppWindow inherits Window {
                 }
             }
         }
+
+        Rectangle {
+            width: parent.width;
+            height: 100px;
+        }
     }
 
     Hint {
-        y: elements.unclosed_paren && ta.has-hover && !elements.result_state ? root.height * 0.1 : -50px;
+        y: elements.unclosed_paren && !elements.result_state ? root.height * 0.1 : -50px;
 
         animate y {
             duration: 500ms;
@@ -421,6 +428,20 @@ export component AppWindow inherits Window {
                 copy_hint.hint = "Copy Result?";
                 value = 0;
                 return;
+            }
+            value += 1;
+        }
+    }
+
+    blink_indication := Timer {
+        running: true;
+        interval: 1000ms;
+        property <int> value: 0;
+        triggered => {
+            if Math.mod(value, 2) == 0 && Math.mod(value, 4) != 0 {
+                parenthesus.color = theme.dark ? #bc540e : #ff943c;
+            } else if Math.mod(value, 4) == 0 {
+                parenthesus.color = theme.dark ? #ff8b2d : #d65600;
             }
             value += 1;
         }

@@ -1,3 +1,5 @@
+use std::cell::RefMut;
+
 use crate::{
     expression::Expression::{self, Number, Op, Parenthesis},
     notation::r#type::NotationType,
@@ -11,9 +13,9 @@ pub trait Notation {
     fn to_infix(&self) -> NotationType;
 }
 
-impl Notation for String {
+impl Notation for RefMut<'_, String> {
     fn to_infix(&self) -> NotationType {
-        let mut char_set = String::from(self);
+        let mut char_set = String::from(self.as_str());
         char_set.push(' ');
         let char_set = char_set.chars();
         let mut expression: Vec<Expression<f64>> = vec![Parenthesis(Left)];

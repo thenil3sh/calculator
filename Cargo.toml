@@ -7,10 +7,10 @@ rust-version = "1.85.0"
 [dependencies]
 clipboard = "0.5.0"
 dark-light = "1.1.1"
-slint = "1.10.0"
+slint = { version = "1.15.0", features = ["backend-android-activity-06"] }
 
 [build-dependencies]
-slint-build = "1.12.1"
+slint-build = "1.15.0"
 
 
 [profile.release]
@@ -25,7 +25,22 @@ strip = true
 [features]
 wayland = []
 
+[lib]
+crate-type = ["rlib", "cdylib"]
+
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = { version = "0.2" }
 getrandom = { version = "0.2.2", features = ["js"] }
+
+[package.metadata.android.signing.release]
+path = "~/.android/keys/calc-upload.jks"
+keystore_password = "lmao"
+
+[package.metadata.android]
+resources = "res"
+
+[package.metadata.android.application]
+icon = "@mipmap/ic_launcher"
+label = "calc"
+
